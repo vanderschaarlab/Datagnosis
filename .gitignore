@@ -8,11 +8,12 @@
 *.orig
 *.log
 *.pot
-__pycache__/*
+__pycache__/
 .cache/*
 .*.swp
 */.ipynb_checkpoints/*
 .DS_Store
+.mypy_cache/
 
 # Project files
 .ropeproject
@@ -28,6 +29,7 @@ tags
 *.eggs/
 .installed.cfg
 *.egg-info
+build/
 
 # Unittest and coverage
 htmlcov/*
@@ -52,3 +54,16 @@ MANIFEST
 .venv*/
 .conda*/
 .python-version
+
+# dc_check specific
+/workspace
+/data
+/Tutorials/workspace
+/Tutorials/data
+src/dc_check/plugins/archived/
+
+# Temp
+.coveragerc
+
+# remove this line when we have a proper docs build
+docs/

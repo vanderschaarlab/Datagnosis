@@ -1,16 +1,16 @@
+# stdlib
 import sys
+import warnings
 
-if sys.version_info[:2] >= (3, 8):
-    # TODO: Import directly (no need for conditional) when `python_requires = >= 3.8`
-    from importlib.metadata import PackageNotFoundError, version  # pragma: no cover
-else:
-    from importlib_metadata import PackageNotFoundError, version  # pragma: no cover
+# third party
+import pandas as pd
 
-try:
-    # Change here if project is renamed and does not equal the package name
-    dist_name = "dc-check"
-    __version__ = version(dist_name)
-except PackageNotFoundError:  # pragma: no cover
-    __version__ = "unknown"
-finally:
-    del version, PackageNotFoundError
+# dc-check relative
+# dc_check relative
+from . import logger  # noqa: F401
+
+pd.options.mode.chained_assignment = None
+
+warnings.simplefilter(action="ignore")
+
+logger.add(sink=sys.stderr, level="CRITICAL")

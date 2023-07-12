@@ -21,8 +21,8 @@ class ForgettingPlugin(Plugin):
         optimizer: torch.optim.Optimizer,
         lr: float,
         epochs: int,
-        total_samples: int,
         num_classes: int,
+        total_samples: int,
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
     ):
@@ -33,10 +33,10 @@ class ForgettingPlugin(Plugin):
             device=device,
             lr=lr,
             epochs=epochs,
-            total_samples=total_samples,
             num_classes=num_classes,
             logging_interval=logging_interval,
         )
+        self.total_samples: int = total_samples
         self.forgetting_counts: Dict = {i: 0 for i in range(self.total_samples)}
         self.last_remembered: Dict = {i: False for i in range(self.total_samples)}
         self.num_epochs: int = 0

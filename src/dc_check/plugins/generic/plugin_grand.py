@@ -2,10 +2,13 @@ from typing import Optional, Union, List
 
 import numpy as np
 import torch
-from functorch import make_functional_with_buffers, vmap, grad
+from torch import vmap
+from torch.func import grad
+
 import torch.nn.functional as F
 from pydantic import validate_arguments
 
+from dc_check.plugins.utils import make_functional_with_buffers
 from dc_check.plugins.core.plugin import Plugin
 from dc_check.utils.constants import DEVICE
 import dc_check.logger as log
@@ -25,7 +28,6 @@ class GRANDPlugin(Plugin):
         optimizer: torch.optim.Optimizer,
         lr: float,
         epochs: int,
-        total_samples: int,
         num_classes: int,
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
@@ -37,7 +39,6 @@ class GRANDPlugin(Plugin):
             device=device,
             lr=lr,
             epochs=epochs,
-            total_samples=total_samples,
             num_classes=num_classes,
             logging_interval=logging_interval,
         )
@@ -82,8 +83,6 @@ class GRANDPlugin(Plugin):
             return self._scores
         else:
             fmodel, params, buffers = make_functional_with_buffers(self.net)
-
-            fmodel.eval()
 
             def compute_loss_stateless_model(params, buffers, sample, target):
                 batch = sample.unsqueeze(0)

@@ -74,7 +74,7 @@ class DataIQ_MAPS_Torch:
 
                 probabilities = net(x)
                 # forward pass
-                probabilities = nn.Softmax()(probabilities)
+                probabilities = nn.Softmax(dim=1)(probabilities)
 
                 # one hot encode the labels
                 y = torch.nn.functional.one_hot(

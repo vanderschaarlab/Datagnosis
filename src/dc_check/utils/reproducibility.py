@@ -21,3 +21,10 @@ def enable_reproducible_results(seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
+
+
+def clear_cache() -> None:
+    try:
+        torch.cuda.empty_cache()
+    except BaseException:
+        pass

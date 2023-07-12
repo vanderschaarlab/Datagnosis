@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 from abc import ABCMeta
 import json
 
@@ -25,9 +25,9 @@ class DataHandler(metaclass=ABCMeta):
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
-        X: Union[pd.DataFrame, np.ndarray],
-        y: Union[pd.Series, np.ndarray],
-        batch_size: int,
+        X: Union[pd.DataFrame, np.ndarray, torch.Tensor],
+        y: Union[pd.Series, np.ndarray, torch.Tensor],
+        batch_size: Optional[int] = None,
         reproducible: bool = True,
         **kwargs,
     ):
@@ -38,14 +38,14 @@ class DataHandler(metaclass=ABCMeta):
             self.X = torch.Tensor(X.values)
         elif isinstance(X, np.ndarray):
             self.X = torch.Tensor(X)
-        else:
-            raise ValueError("X must be either a pandas DataFrame or a numpy array")
+        else:  # X is already torch.Tensor
+            self.X = X
         if isinstance(y, pd.Series):
             self.y = torch.LongTensor(y.values)
         elif isinstance(y, np.ndarray):
             self.y = torch.LongTensor(y)
-        else:
-            raise ValueError("y must be either a pandas Series or a numpy array")
+        else:  # y is already torch.Tensor
+            self.y = y
 
         # Handle kwargs
         if "num_workers" in kwargs:

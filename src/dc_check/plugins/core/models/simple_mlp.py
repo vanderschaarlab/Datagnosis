@@ -15,7 +15,6 @@ class SimpleMLP(nn.Module):
         self.output_layer = nn.Linear(64, output_dim)
         self.relu = nn.ReLU()
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = self.relu(self.input_layer(x))
         out = self.relu(self.hidden_layer1(out))

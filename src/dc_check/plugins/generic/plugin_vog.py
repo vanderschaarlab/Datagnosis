@@ -22,7 +22,6 @@ class VOGPlugin(Plugin):
         optimizer: torch.optim.Optimizer,
         lr: float,
         epochs: int,
-        total_samples: int,
         num_classes: int,
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
@@ -34,7 +33,6 @@ class VOGPlugin(Plugin):
             device=device,
             lr=lr,
             epochs=epochs,
-            total_samples=total_samples,
             num_classes=num_classes,
             logging_interval=logging_interval,
         )

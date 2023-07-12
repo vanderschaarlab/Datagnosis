@@ -21,7 +21,7 @@ import dc_check.logger as log
 import dc_check.plugins.utils as utils
 import dc_check.plugins.core.utils as utils_core
 from dc_check.plugins.core.datahandler import DataHandler
-from dc_check.utils.reproducibility import enable_reproducible_results
+from dc_check.utils.reproducibility import enable_reproducible_results, clear_cache
 from dc_check.utils.constants import DEVICE
 
 
@@ -35,7 +35,6 @@ class Plugin(metaclass=ABCMeta):
         optimizer: torch.optim.Optimizer,
         lr: float,
         epochs: int,
-        total_samples: int,
         num_classes: int,
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
@@ -47,7 +46,6 @@ class Plugin(metaclass=ABCMeta):
         self.device = device
         self.lr = lr
         self.epochs = epochs
-        self.total_samples = total_samples
         self.num_classes = num_classes
         self._scores = None
         self.update_point = "post-epoch"
@@ -56,6 +54,7 @@ class Plugin(metaclass=ABCMeta):
         self.has_been_fit = False
         self.score_names = None
         self.reproducible = reproducible
+        clear_cache()
         if self.reproducible:
             log.debug("Fixing seed for reproducibility.")
             enable_reproducible_results(0)
@@ -117,7 +116,7 @@ class Plugin(metaclass=ABCMeta):
         self.datahandler = datahandler
         self.dataloader = datahandler.dataloader
         self.dataloader_unshuffled = datahandler.dataloader_unshuffled
-        self.workspace = workspace
+        self.workspace = Path(workspace) if isinstance(workspace, str) else workspace
         self._updates_params = inspect.signature(self._updates).parameters
         kwargs_hash = utils.get_all_args_hash(all_args)
 
@@ -248,7 +247,7 @@ class Plugin(metaclass=ABCMeta):
                     )
 
             if self.update_point == "per-epoch":
-                log.debug("Updating plugin after epoch {epoch+1}")
+                log.debug(f"Updating plugin after epoch {epoch+1}")
                 self._safe_update(
                     net=self.model,
                     device=self.device,
@@ -406,11 +405,8 @@ class PluginLoader:
         self._plugins: Dict[str, Type] = {}
         self._available_plugins = {}
         for plugin in plugins:
-            # print(f"Loading plugin {plugin}")
             stem = Path(plugin).stem.split("plugin_")[-1]
-            # print(f"stem {stem}")
             cls = self._load_single_plugin_impl(plugin)
-            # print(f"cls {cls}")
             if cls is None:
                 continue
             self._available_plugins[stem] = plugin
@@ -428,31 +424,31 @@ class PluginLoader:
         log.debug(f"loading {module_name} plugin")
         failed = False
         for retry in range(2):
-            try:
-                if module_name in sys.modules:
-                    mod = sys.modules[module_name]
-                else:
-                    spec = importlib.util.spec_from_file_location(module_name, plugin)
-                    if spec is None:
-                        raise RuntimeError("invalid spec")
-                    if not isinstance(spec.loader, Loader):
-                        raise RuntimeError("invalid plugin type")
+            # try:
+            if module_name in sys.modules:
+                mod = sys.modules[module_name]
+            else:
+                spec = importlib.util.spec_from_file_location(module_name, plugin)
+                if spec is None:
+                    raise RuntimeError("invalid spec")
+                if not isinstance(spec.loader, Loader):
+                    raise RuntimeError("invalid plugin type")
 
-                    mod = importlib.util.module_from_spec(spec)
-                    if module_name not in sys.modules:
-                        sys.modules[module_name] = mod
+                mod = importlib.util.module_from_spec(spec)
+                if module_name not in sys.modules:
+                    sys.modules[module_name] = mod
 
-                    spec.loader.exec_module(mod)
-                cls = mod.plugin
-                if cls is None:
-                    log.critical(f"module disabled: {plugin_name}")
-                    return None
+                spec.loader.exec_module(mod)
+            cls = mod.plugin
+            if cls is None:
+                log.critical(f"module disabled: {plugin_name}")
+                return None
 
-                failed = False
-                break
-            except BaseException as e:
-                log.critical(f"load failed: {e}")
-                failed = True
+            failed = False
+            break
+            # except BaseException as e:
+            #     log.critical(f"load failed: {e}")
+            #     failed = True
 
         if failed:
             log.critical(f"module {name} load failed")
@@ -520,7 +516,8 @@ class PluginLoader:
         if name not in self._plugins:
             raise ValueError(f"Plugin {name} cannot be loaded.")
 
-        return self._plugins[name](*args, **kwargs)
+        # Use deepcopy to avoid sharing state between identical plugins
+        return deepcopy(self._plugins[name](*args, **kwargs))
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def get_type(self, name: str) -> Type:

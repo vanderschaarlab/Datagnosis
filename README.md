@@ -33,7 +33,7 @@
 
 ## Features:
 - :key: Easy to extend pluginable architecture.
-- :cyclone: Several evaluation metrics for correctness and privacy.
+- :cyclone: Several state-of-the-art hardness characterisation methods.
 <!-- - :book: [Read the docs !](https://datagnosis.readthedocs.io/) -->
 <!-- - :airplane: [Checkout the tutorials!](https://github.com/vanderschaarlab/datagnosis#-tutorials) -->
 

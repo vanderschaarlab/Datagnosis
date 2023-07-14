@@ -7,9 +7,9 @@ from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
 
-from dc_check.plugins import Plugins
-from dc_check.plugins.core.models.simple_mlp import SimpleMLP
-from dc_check.plugins.core.datahandler import DataHandler
+from datagnosis.plugins import Plugins
+from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
+from datagnosis.plugins.core.datahandler import DataHandler
 
 
 def test_scores_reproducible() -> None:

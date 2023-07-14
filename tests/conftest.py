@@ -7,7 +7,7 @@ from typing import Generator
 import pytest
 
 # synthcity absolute
-from dc_check.utils.reproducibility import clear_cache, enable_reproducible_results
+from datagnosis.utils.reproducibility import clear_cache, enable_reproducible_results
 
 
 @pytest.fixture(autouse=True, scope="session")

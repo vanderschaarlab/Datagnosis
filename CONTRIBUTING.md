@@ -1,22 +1,22 @@
-# Contributing to DC Check
+# Contributing to datagnosis
 
-We want to make contributing to DC Check is as easy and transparent as possible. We hope to collaborate with as many people as we can.
+We want to make contributing to datagnosis is as easy and transparent as possible. We hope to collaborate with as many people as we can.
 
 
 ## Development installation
 
 First create a new environment. It is recommended that you use conda. This can be done as follows:
 ```bash
-conda create -n your-dc-check-env python=3.9
-conda activate your-dc-check-env
+conda create -n your-datagnosis-env python=3.9
+conda activate your-datagnosis-env
 ```
 *Python versions 3.8, 3.9, 3.10, 3.11 are all compatible*
 
 To get the development installation with all the necessary dependencies for
 linting, testing, auto-formatting, and pre-commit etc. run the following:
 ```bash
-git clone https://github.com/vanderschaarlab/dc-check.git
-cd dc-check
+git clone https://github.com/vanderschaarlab/datagnosis.git
+cd datagnosis
 pip install -e .[testing]
 ```
 
@@ -31,16 +31,16 @@ This checks that you are set up properly to contribute, such that you will match
 
 ### Code Style
 
-We believe that having a consistent code style is incredibly important. Therefore DC Check imposes certain rules on the code that is contributed and the automated tests will not pass, if the style is not adhered to. These tests passing is a requirement for a contribution being merged. However, we make adhering to this code style as simple as possible. First, all the libraries required to produce code that is compatible with DC Check's Code Style are installed in the step above when you set up the development environment. Secondly, these libraries are all triggered by pre-commit, so once you are set-up, you don't need to do anything. When you run `git commit`, any simple changes to enforce the style will run automatically and other required changes are explained in the stdout for you to go through and fix.
+We believe that having a consistent code style is incredibly important. Therefore datagnosis imposes certain rules on the code that is contributed and the automated tests will not pass, if the style is not adhered to. These tests passing is a requirement for a contribution being merged. However, we make adhering to this code style as simple as possible. First, all the libraries required to produce code that is compatible with datagnosis's Code Style are installed in the step above when you set up the development environment. Secondly, these libraries are all triggered by pre-commit, so once you are set-up, you don't need to do anything. When you run `git commit`, any simple changes to enforce the style will run automatically and other required changes are explained in the stdout for you to go through and fix.
 
-DC Check uses the [black](https://github.com/ambv/black) and [flake8](https://github.com/PyCQA/flake8) code formatter to enforce a common code style across the code base. No additional configuration should be needed (see the [black documentation](https://black.readthedocs.io/en/stable/installation_and_usage.html#usage) for advanced usage).
+datagnosis uses the [black](https://github.com/ambv/black) and [flake8](https://github.com/PyCQA/flake8) code formatter to enforce a common code style across the code base. No additional configuration should be needed (see the [black documentation](https://black.readthedocs.io/en/stable/installation_and_usage.html#usage) for advanced usage).
 
-Also, DC Check uses [isort](https://github.com/timothycrosley/isort) to sort imports alphabetically and separate into sections.
+Also, datagnosis uses [isort](https://github.com/timothycrosley/isort) to sort imports alphabetically and separate into sections.
 
 
 #### Type Hints
 
-DC Check is fully typed using python 3.7+ [type hints](https://www.python.org/dev/peps/pep-0484/). This is enforced for contributions by [mypy](https://github.com/python/mypy), which is a static type-checker.
+datagnosis is fully typed using python 3.7+ [type hints](https://www.python.org/dev/peps/pep-0484/). This is enforced for contributions by [mypy](https://github.com/python/mypy), which is a static type-checker.
 
 
 #### Tests
@@ -74,5 +74,5 @@ clear and has sufficient instructions to be able to reproduce the issue.
 
 ## License
 
-By contributing to DC Check, you agree that your contributions will be licensed
+By contributing to datagnosis, you agree that your contributions will be licensed
 under the LICENSE file in the root directory of this source tree. You should therefore, make sure that if you have introduced any dependencies that they also are covered by a license that allows the code to be used by the project and is compatible with the license in the root directory of this project.

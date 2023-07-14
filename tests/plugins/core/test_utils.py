@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import pytest
-from dc_check.plugins.core.utils import check_dim
+from datagnosis.plugins.core.utils import check_dim
 
 
 @pytest.mark.parametrize(

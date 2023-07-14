@@ -1,5 +1,5 @@
 <h2 align="center">
-  DC Check
+  datagnosis
 </h2>
 
 <h4 align="center">
@@ -10,19 +10,19 @@
 <div align="center">
 
 <!-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Vr2PJswgfFYBkJCm3hhVkuH-9dXnHeYV?usp=sharing)
-[![Tests Quick Python](https://github.com/vanderschaarlab/dc-check/actions/workflows/test_pr.yml/badge.svg)](https://github.com/vanderschaarlab/dc-check/actions/workflows/test_pr.yml)
-[![Tests Full Python](https://github.com/vanderschaarlab/dc-check/actions/workflows/test_full.yml/badge.svg)](https://github.com/vanderschaarlab/dc-check/actions/workflows/test_full.yml)
-[![Tutorials](https://github.com/vanderschaarlab/dc-check/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/dc-check/actions/workflows/test_tutorials.yml)
-[![Documentation Status](https://readthedocs.org/projects/dc-check/badge/?version=latest)](https://dc-check.readthedocs.io/en/latest/?badge=latest)
+[![Tests Quick Python](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_pr.yml/badge.svg)](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_pr.yml)
+[![Tests Full Python](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_full.yml/badge.svg)](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_full.yml)
+[![Tutorials](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_tutorials.yml)
+[![Documentation Status](https://readthedocs.org/projects/datagnosis/badge/?version=latest)](https://datagnosis.readthedocs.io/en/latest/?badge=latest)
 
-[![](https://pepy.tech/badge/dc-check)](https://pypi.org/project/dc-check/) -->
+[![](https://pepy.tech/badge/datagnosis)](https://pypi.org/project/datagnosis/) -->
 
 <!-- [![arXiv](https://img.shields.io/badge/arXiv-2301.07573-b31b1b.svg)](https://arxiv.org/abs/2301.07573) -->
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/vanderschaarlab/dc-check/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/vanderschaarlab/datagnosis/blob/main/LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
 [![about](https://img.shields.io/badge/about-The%20van%20der%20Schaar%20Lab-blue)](https://www.vanderschaar-lab.com/)
 
-<!-- ![image](https://github.com/vanderschaarlab/dc-check/raw/main/docs/arch.png "dc-check") -->
+<!-- ![image](https://github.com/vanderschaarlab/datagnosis/raw/main/docs/arch.png "datagnosis") -->
 
 </div>
 
@@ -30,16 +30,16 @@
 ## Features:
 - :key: Easy to extend pluginable architecture.
 - :cyclone: Several evaluation metrics for correctness and privacy.
-<!-- - :book: [Read the docs !](https://dc-check.readthedocs.io/) -->
-<!-- - :airplane: [Checkout the tutorials!](https://github.com/vanderschaarlab/dc-check#-tutorials) -->
+<!-- - :book: [Read the docs !](https://datagnosis.readthedocs.io/) -->
+<!-- - :airplane: [Checkout the tutorials!](https://github.com/vanderschaarlab/datagnosis#-tutorials) -->
 
-*Please note: dc-check does not handle missing data and so these values must be imputed first [HyperImpute](https://github.com/vanderschaarlab/hyperimpute) can be used to do this.*
+*Please note: datagnosis does not handle missing data and so these values must be imputed first [HyperImpute](https://github.com/vanderschaarlab/hyperimpute) can be used to do this.*
 
 ## :rocket: Installation
 
 The library can be installed from PyPI using
 ```bash
-$ pip install dc-check
+$ pip install datagnosis
 ```
 or from source, using
 ```bash
@@ -48,7 +48,7 @@ $ pip install .
 Other library extensions:
  * Install the library with unit-testing support
 ```bash
- pip install dc-check[testing]
+ pip install datagnosis[testing]
 ```
 
 ## :boom: Sample Usage
@@ -88,25 +88,25 @@ The tests can be executed using
 pytest -vsx
 ```
 
-# Contributing to dc-check
+# Contributing to datagnosis
 
-We want to make contributing to dc-check is as easy and transparent as possible. We hope to collaborate with as many people as we can.
+We want to make contributing to datagnosis is as easy and transparent as possible. We hope to collaborate with as many people as we can.
 
 
 ## Development installation
 
 First create a new environment. It is recommended that you use conda. This can be done as follows:
 ```bash
-conda create -n your-dc-check-env python=3.9
-conda activate your-dc-check-env
+conda create -n your-datagnosis-env python=3.9
+conda activate your-datagnosis-env
 ```
 *Python versions , 3.8, 3.9, 3.10, 3.11 are all compatible, but it is best to use the most up to date version you can, as some models may not support older python versions.*
 
 To get the development installation with all the necessary dependencies for
 linting, testing, auto-formatting, and pre-commit etc. run the following:
 ```bash
-git clone https://github.com/vanderschaarlab/dc-check.git
-cd dc-check
+git clone https://github.com/vanderschaarlab/datagnosis.git
+cd datagnosis
 pip install -e .[testing]
 ```
 
@@ -121,16 +121,16 @@ This checks that you are set up properly to contribute, such that you will match
 
 ### Code Style
 
-We believe that having a consistent code style is incredibly important. Therefore dc-check imposes certain rules on the code that is contributed and the automated tests will not pass, if the style is not adhered to. These tests passing is a requirement for a contribution being merged. However, we make adhering to this code style as simple as possible. First, all the libraries required to produce code that is compatible with dc-check's Code Style are installed in the step above when you set up the development environment. Secondly, these libraries are all triggered by pre-commit, so once you are set-up, you don't need to do anything. When you run `git commit`, any simple changes to enforce the style will run automatically and other required changes are explained in the stdout for you to go through and fix.
+We believe that having a consistent code style is incredibly important. Therefore datagnosis imposes certain rules on the code that is contributed and the automated tests will not pass, if the style is not adhered to. These tests passing is a requirement for a contribution being merged. However, we make adhering to this code style as simple as possible. First, all the libraries required to produce code that is compatible with datagnosis's Code Style are installed in the step above when you set up the development environment. Secondly, these libraries are all triggered by pre-commit, so once you are set-up, you don't need to do anything. When you run `git commit`, any simple changes to enforce the style will run automatically and other required changes are explained in the stdout for you to go through and fix.
 
-dc-check uses the [black](https://github.com/ambv/black) and [flake8](https://github.com/PyCQA/flake8) code formatter to enforce a common code style across the code base. No additional configuration should be needed (see the [black documentation](https://black.readthedocs.io/en/stable/installation_and_usage.html#usage) for advanced usage).
+datagnosis uses the [black](https://github.com/ambv/black) and [flake8](https://github.com/PyCQA/flake8) code formatter to enforce a common code style across the code base. No additional configuration should be needed (see the [black documentation](https://black.readthedocs.io/en/stable/installation_and_usage.html#usage) for advanced usage).
 
-Also, dc-check uses [isort](https://github.com/timothycrosley/isort) to sort imports alphabetically and separate into sections.
+Also, datagnosis uses [isort](https://github.com/timothycrosley/isort) to sort imports alphabetically and separate into sections.
 
 
 #### Type Hints
 
-dc-check is fully typed using python 3.7+ [type hints](https://www.python.org/dev/peps/pep-0484/). This is enforced for contributions by [mypy](https://github.com/python/mypy), which is a static type-checker.
+datagnosis is fully typed using python 3.7+ [type hints](https://www.python.org/dev/peps/pep-0484/). This is enforced for contributions by [mypy](https://github.com/python/mypy), which is a static type-checker.
 
 
 #### Tests
@@ -164,7 +164,7 @@ clear and has sufficient instructions to be able to reproduce the issue.
 
 ## License
 
-By contributing to dc-check, you agree that your contributions will be licensed
+By contributing to datagnosis, you agree that your contributions will be licensed
 under the LICENSE file in the root directory of this source tree. You should therefore, make sure that if you have introduced any dependencies that they also are covered by a license that allows the code to be used by the project and is compatible with the license in the root directory of this project.
 
 <!-- ## Citing
@@ -177,7 +177,7 @@ If you use this code, please cite the associated paper:
   url = {https://arxiv.org/abs/2301.07573},
   author = {Qian, Zhaozhi and Cebere, Bogdan-Constantin and van der Schaar, Mihaela},
   keywords = {Machine Learning (cs.LG), Artificial Intelligence (cs.AI), FOS: Computer and information sciences, FOS: Computer and information sciences},
-  title = {dc-check: facilitating innovative use cases of synthetic data in different data modalities},
+  title = {datagnosis: facilitating innovative use cases of synthetic data in different data modalities},
   year = {2023},
   copyright = {Creative Commons Attribution 4.0 International}
 }

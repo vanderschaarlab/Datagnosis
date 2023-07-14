@@ -2,12 +2,45 @@ from sklearn.datasets import load_iris
 import torch
 import json
 import numpy as np
-from dc_check.plugins.core.datahandler import DataHandler, IndexedDataset
+from datagnosis.plugins.core.datahandler import DataHandler, IndexedDataset
 
 
-def test_datahandler_sanity():
+def test_datahandler_sanity_dataframe():
     X, y = load_iris(return_X_y=True, as_frame=True)
     datahander = DataHandler(X, y, batch_size=32)
+
+    assert datahander is not None
+    assert isinstance(datahander.X, torch.Tensor)
+    assert isinstance(datahander.y, torch.Tensor)
+    assert datahander.X.shape[0] == datahander.y.shape[0]
+    assert datahander.X.shape[1] == X.shape[1]
+    assert isinstance(datahander.dataset, IndexedDataset)
+    assert datahander.dataloader.batch_size == 32
+    assert isinstance(datahander.dataloader, torch.utils.data.DataLoader)
+    assert isinstance(datahander.dataloader_unshuffled, torch.utils.data.DataLoader)
+
+
+def test_datahandler_sanity_numpy():
+    X, y = load_iris(return_X_y=True, as_frame=True)
+
+    datahander = DataHandler(np.asarray(X), np.asarray(y), batch_size=32)
+
+    assert datahander is not None
+    assert isinstance(datahander.X, torch.Tensor)
+    assert isinstance(datahander.y, torch.Tensor)
+    assert datahander.X.shape[0] == datahander.y.shape[0]
+    assert datahander.X.shape[1] == X.shape[1]
+    assert isinstance(datahander.dataset, IndexedDataset)
+    assert datahander.dataloader.batch_size == 32
+    assert isinstance(datahander.dataloader, torch.utils.data.DataLoader)
+    assert isinstance(datahander.dataloader_unshuffled, torch.utils.data.DataLoader)
+
+
+def test_datahandler_sanity_tensor():
+    X, y = load_iris(return_X_y=True, as_frame=True)
+    datahander = DataHandler(
+        torch.Tensor(np.asarray(X)), torch.Tensor(np.asarray(y)), batch_size=32
+    )
 
     assert datahander is not None
     assert isinstance(datahander.X, torch.Tensor)

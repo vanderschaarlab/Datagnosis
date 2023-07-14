@@ -4,10 +4,10 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from dc_check.plugins import Plugin
-from dc_check.plugins.generic.plugin_prototypicality import plugin
-from dc_check.plugins.core.datahandler import DataHandler
-from dc_check.plugins.core.models.simple_mlp import SimpleMLP
+from datagnosis.plugins import Plugin
+from datagnosis.plugins.generic.plugin_prototypicality import plugin
+from datagnosis.plugins.core.datahandler import DataHandler
+from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
 
 from generic_helpers import generate_fixtures
 

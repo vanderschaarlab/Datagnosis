@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, Type
-from dc_check.plugins.core.plugin import Plugin
-from dc_check.plugins.generic import GenericPlugins as Plugins
+from datagnosis.plugins.core.plugin import Plugin
+from datagnosis.plugins.generic import GenericPlugins as Plugins
 
 
 def generate_fixtures(

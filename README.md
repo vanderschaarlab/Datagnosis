@@ -1,9 +1,5 @@
 <h2 align="center">
-<<<<<<< HEAD
-  datagnosis
-=======
   Datagnosis
->>>>>>> a397fad (Update README.md)
 </h2>
 
 <h4 align="center">

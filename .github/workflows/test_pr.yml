@@ -1,6 +1,10 @@
 name: Tests PR Python
 
 on:
+  push:
+    branches: [main, release]
+  pull_request:
+    types: [opened, synchronize, reopened]
   schedule:
     - cron: "5 2 * * 3"
   workflow_dispatch:

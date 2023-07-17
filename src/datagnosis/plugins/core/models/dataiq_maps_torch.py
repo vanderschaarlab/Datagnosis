@@ -13,9 +13,7 @@ class DataIQ_MAPS_Torch:
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
-        X: Union[List, torch.Tensor] = None,
-        y: Union[List, torch.Tensor] = None,
-        dataloader: Optional[DataLoader] = None,
+        dataloader: DataLoader,
         sparse_labels: bool = False,
     ):
         """
@@ -28,8 +26,6 @@ class DataIQ_MAPS_Torch:
           sparse_labels (bool): boolean to identify if labels are one-hot encoded or not. If not=True.
         Defaults to False
         """
-        self.X = X
-        self.y = y
         self.dataloader = dataloader
         self._sparse_labels = sparse_labels
 
@@ -62,6 +58,7 @@ class DataIQ_MAPS_Torch:
             list()
         )  # gold label probabilities, i.e. actual ground truth label
         true_probabilities = list()  # true label probabilities, i.e. predicted label
+        net = net.to(device)
         net.eval()
         with torch.no_grad():
             # iterate through the dataset

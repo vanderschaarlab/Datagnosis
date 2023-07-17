@@ -6,6 +6,7 @@ from typing import Generator
 # third party
 import pytest
 
+# datagnosis absolute
 # synthcity absolute
 from datagnosis.utils.reproducibility import clear_cache, enable_reproducible_results
 

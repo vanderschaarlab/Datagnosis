@@ -1,3 +1,4 @@
+# datagnosis absolute
 from datagnosis.utils.datasets.images.mnist import load_mnist
 
 

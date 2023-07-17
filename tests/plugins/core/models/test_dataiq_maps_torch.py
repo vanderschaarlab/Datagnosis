@@ -1,5 +1,8 @@
-from sklearn.datasets import load_iris, load_breast_cancer, load_wine
+# third party
 import torch
+from sklearn.datasets import load_breast_cancer, load_iris, load_wine
+
+# datagnosis absolute
 from datagnosis.plugins.core.datahandler import DataHandler
 from datagnosis.plugins.core.models.dataiq_maps_torch import DataIQ_MAPS_Torch
 from datagnosis.plugins.core.models.simple_mlp import SimpleMLP

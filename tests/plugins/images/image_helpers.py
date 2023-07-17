@@ -1,4 +1,7 @@
+# stdlib
 from typing import Dict, List, Optional, Type
+
+# datagnosis absolute
 from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.plugins.images import ImagePlugins as Plugins
 

@@ -1,6 +1,9 @@
-import torch
+# third party
 import numpy as np
 import pytest
+import torch
+
+# datagnosis absolute
 from datagnosis.plugins.core.utils import check_dim
 
 

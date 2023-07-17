@@ -1,21 +1,22 @@
+# third party
+import numpy as np
 import pytest
 import torch
 import torch.nn as nn
-import numpy as np
+from image_helpers import generate_fixtures
 
+# datagnosis absolute
 from datagnosis.plugins import Plugin
-from datagnosis.plugins.images.plugin_allsh import plugin
 from datagnosis.plugins.core.datahandler import DataHandler
 from datagnosis.plugins.core.models.image_nets import (
-    LeNetMNIST,
     LeNet,
+    LeNetMNIST,
     ResNet18,
     ResNet18MNIST,
 )
-from datagnosis.utils.datasets.images.mnist import load_mnist
+from datagnosis.plugins.images.plugin_allsh import plugin
 from datagnosis.utils.datasets.images.cifar import load_cifar
-
-from image_helpers import generate_fixtures
+from datagnosis.utils.datasets.images.mnist import load_mnist
 
 plugin_name = "allsh"
 plugin_args_mnist_lenet = {

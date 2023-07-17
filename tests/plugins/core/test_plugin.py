@@ -2,8 +2,8 @@
 from typing import Any, List
 
 # third party
-import pytest
 import numpy as np
+import pytest
 import torch
 
 # datagnosis absolute

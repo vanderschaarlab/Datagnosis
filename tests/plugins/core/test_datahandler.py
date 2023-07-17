@@ -1,7 +1,12 @@
-from sklearn.datasets import load_iris
-import torch
+# stdlib
 import json
+
+# third party
 import numpy as np
+import torch
+from sklearn.datasets import load_iris
+
+# datagnosis absolute
 from datagnosis.plugins.core.datahandler import DataHandler, IndexedDataset
 
 

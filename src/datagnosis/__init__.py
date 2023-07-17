@@ -6,7 +6,6 @@ import warnings
 import pandas as pd
 
 # datagnosis relative
-# datagnosis relative
 from . import logger  # noqa: F401
 
 pd.options.mode.chained_assignment = None

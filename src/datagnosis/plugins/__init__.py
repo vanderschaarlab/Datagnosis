@@ -5,6 +5,7 @@ from os.path import basename, dirname, isfile, join
 # third party
 from pydantic import validate_arguments
 
+# datagnosis absolute
 # synthcity absolute
 from datagnosis.plugins.core.plugin import Plugin, PluginLoader  # noqa: F401,E402
 

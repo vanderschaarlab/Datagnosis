@@ -1,4 +1,7 @@
+# stdlib
 from typing import Tuple
+
+# third party
 import torch
 from torchvision import datasets, transforms
 

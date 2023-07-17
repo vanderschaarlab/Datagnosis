@@ -1,28 +1,32 @@
 # import Standard
-import sys
-import platform
+# stdlib
 import importlib.util
-from importlib.abc import Loader
-from typing import Optional, Union, Any, Dict, List, Tuple, Type, Generator, Literal
-from pathlib import Path
-from abc import ABCMeta, abstractmethod
 import inspect
+import platform
+import sys
+from abc import ABCMeta, abstractmethod
 from copy import deepcopy
+from importlib.abc import Loader
+from pathlib import Path
+from typing import Any, Dict, Generator, List, Literal, Optional, Tuple, Type, Union
+
+# third party
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import torch
 
 # import Third Party
 from pydantic import validate_arguments
-import numpy as np
-import torch
-import matplotlib.pyplot as plt
-import seaborn as sns
 
+# datagnosis absolute
 # absolute imports
 import datagnosis.logger as log
-import datagnosis.plugins.utils as utils
 import datagnosis.plugins.core.utils as utils_core
+import datagnosis.plugins.utils as utils
 from datagnosis.plugins.core.datahandler import DataHandler
-from datagnosis.utils.reproducibility import enable_reproducible_results, clear_cache
 from datagnosis.utils.constants import DEVICE
+from datagnosis.utils.reproducibility import clear_cache, enable_reproducible_results
 
 
 # Base class for Hardness Classification Methods (HCMs)
@@ -229,12 +233,7 @@ class Plugin(metaclass=ABCMeta):
                             "Intermediate cache file exists but reproducible is not set to true for this method. Recomputing intermediate outputs."
                         )
                     log.debug("Computing intermediate outputs")
-                    (
-                        logits,
-                        targets,
-                        probs,
-                        indices,
-                    ) = utils.get_intermediate_outputs(
+                    (logits, targets, probs, indices,) = utils.get_intermediate_outputs(
                         net=self.model,
                         device=self.device,
                         dataloader=self.dataloader_unshuffled,
@@ -279,7 +278,7 @@ class Plugin(metaclass=ABCMeta):
         else:
             raise ValueError(
                 f"""
-Missing required arguments for {self.update_point} update. Required arguments are: 
+Missing required arguments for {self.update_point} update. Required arguments are:
 {', '.join(self._updates_params)}. You provided: {', '.join(kwargs.keys())}.
 """
             )

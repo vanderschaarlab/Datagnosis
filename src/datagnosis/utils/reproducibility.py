@@ -1,7 +1,11 @@
-from pydantic import validate_arguments
-import random, os
+# stdlib
+import os
+import random
+
+# third party
 import numpy as np
 import torch
+from pydantic import validate_arguments
 
 
 @validate_arguments

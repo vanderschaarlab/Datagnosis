@@ -1,13 +1,16 @@
-from typing import Optional, Union, List, Tuple
+# stdlib
+from typing import List, Optional, Tuple, Union
 
+# third party
 import numpy as np
 import torch
 from pydantic import validate_arguments
 
+# datagnosis absolute
+import datagnosis.logger as log
+from datagnosis.plugins.core.models.dataiq_maps_torch import DataIQ_MAPS_Torch
 from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.utils.constants import DEVICE
-from datagnosis.plugins.core.models.dataiq_maps_torch import DataIQ_MAPS_Torch
-import datagnosis.logger as log
 
 
 # This is a class that computes scores for Data-IQ and Data Maps

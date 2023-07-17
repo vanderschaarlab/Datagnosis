@@ -1,15 +1,16 @@
+# third party
+import numpy as np
 import pytest
-from sklearn.datasets import load_iris
 import torch
 import torch.nn as nn
-import numpy as np
+from generic_helpers import generate_fixtures
+from sklearn.datasets import load_iris
 
+# datagnosis absolute
 from datagnosis.plugins import Plugin
-from datagnosis.plugins.generic.plugin_data_iq import plugin
 from datagnosis.plugins.core.datahandler import DataHandler
 from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
-
-from generic_helpers import generate_fixtures
+from datagnosis.plugins.generic.plugin_data_iq import plugin
 
 plugin_name = "data_iq"
 plugin_args = {

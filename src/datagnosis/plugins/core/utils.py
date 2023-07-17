@@ -1,6 +1,9 @@
-import torch
-import numpy as np
+# stdlib
 from typing import Union
+
+# third party
+import numpy as np
+import torch
 
 
 def check_dim(x: Union[torch.Tensor, np.ndarray, list]):

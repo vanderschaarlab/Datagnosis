@@ -1,5 +1,8 @@
-import sys
+# stdlib
 import pprint
+import sys
+
+# datagnosis absolute
 import datagnosis.logger as log
 
 

@@ -1,3 +1,4 @@
+# datagnosis absolute
 from datagnosis.utils.datasets.images.cifar import load_cifar
 
 

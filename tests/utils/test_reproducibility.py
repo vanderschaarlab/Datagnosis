@@ -1,15 +1,18 @@
+# stdlib
 import sys
 
+# third party
 import numpy as np
-from sklearn.datasets import load_iris
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
+# datagnosis absolute
 from datagnosis.plugins import Plugins
-from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
 from datagnosis.plugins.core.datahandler import DataHandler
+from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
 
 
 def test_scores_reproducible() -> None:

@@ -1,13 +1,16 @@
-from typing import Optional, Union, List
+# stdlib
+from typing import List, Optional, Union
 
+# third party
 import numpy as np
 import torch
 import torch.nn.functional as F
 from pydantic import validate_arguments
 
+# datagnosis absolute
+import datagnosis.logger as log
 from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.utils.constants import DEVICE
-import datagnosis.logger as log
 
 
 # This is a class that computes scores for Confidence Agreement

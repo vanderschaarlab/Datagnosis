@@ -1,7 +1,7 @@
+# third party
 import torch
-from torch import nn
-
 from pydantic import validate_arguments
+from torch import nn
 
 
 class SimpleMLP(nn.Module):

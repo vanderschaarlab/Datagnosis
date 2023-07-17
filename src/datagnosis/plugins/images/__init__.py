@@ -2,6 +2,7 @@
 import glob
 from os.path import basename, dirname, isfile, join
 
+# datagnosis absolute
 # synthcity absolute
 from datagnosis.plugins.core.plugin import Plugin, PluginLoader  # noqa: F401,E402
 

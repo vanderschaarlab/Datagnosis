@@ -54,7 +54,7 @@ Other library extensions:
 ## :boom: Sample Usage
 
 ### Generic data
- 
+
 
 ## 🔑 Methods
 

@@ -1,24 +1,10 @@
-# stdlib
-import shutil
-from pathlib import Path
-from typing import Generator
+"""
+    Dummy conftest.py for dc_check.
 
-# third party
-import pytest
+    If you don't know what this is for, just leave it empty.
+    Read more about conftest.py under:
+    - https://docs.pytest.org/en/stable/fixture.html
+    - https://docs.pytest.org/en/stable/writing_plugins.html
+"""
 
-# datagnosis absolute
-# synthcity absolute
-from datagnosis.utils.reproducibility import clear_cache, enable_reproducible_results
-
-
-@pytest.fixture(autouse=True, scope="session")
-def run_before_tests() -> Generator:
-    enable_reproducible_results(0)
-    clear_cache()
-
-    yield
-
-    # cleanup after test
-    workspace = Path("test_workspace")
-    if workspace.exists():
-        shutil.rmtree(workspace, ignore_errors=True)
+# import pytest

@@ -54,7 +54,7 @@ Other library extensions:
 ## :boom: Sample Usage
 
 ### Generic data
-
+ 
 
 ## 🔑 Methods
 
@@ -72,7 +72,7 @@ Other library extensions:
 | Large Loss | Generic |Large Loss characterizes data based on sample-level loss magnitudes. | Hard - high scores | [Large Loss Paper](https://arxiv.org/abs/2106.00445)|
 | Prototypicalilty | Generic |Prototypicality calculates the latent space clustering distance of the sample to the class centroid as the metric to characterize data. | Hard - high scores |[Prototypicalilty Paper](https://arxiv.org/abs/2206.14486) |
 | Variance of Gradients (VOG) | Generic |VoG (Variance of gradients) estimates the variance of gradients for each sample over training | Hard - high scores |[VOG Paper](https://arxiv.org/abs/2008.11600) |
-| Active Learning Guided by Local Sensitivity and Hardness (ALLSH) | Images |ALLSH computes the KL divergence of softmax outputs between original and augmented samples to characterize data. | Hard - high scores||[ALLSH Paper](https://arxiv.org/abs/2205.04980) |
+| ALLSH | Images |ALLSH computes the KL divergence of softmax outputs between original and augmented samples to characterize data. | Hard - high scores||[ALLSH Paper](https://arxiv.org/abs/2205.04980) |
 
 *Generic type plugins can be used for tabular or image data. Image type plugins only work for images.*
 

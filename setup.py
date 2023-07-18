@@ -13,7 +13,7 @@ def read(fname: str) -> str:
 
 
 def find_version() -> str:
-    version_file = read("src/datagnosis/version.py").split("\n")[0]
+    version_file = read("src/dc_check/version.py").split("\n")[0]
     version_re = r"__version__ = \"(?P<version>.+)\""
     version_raw = re.match(version_re, version_file)
 

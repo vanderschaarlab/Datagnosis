@@ -55,14 +55,12 @@ MANIFEST
 .conda*/
 .python-version
 
-# datagnosis specific
+# dc_check specific
 /workspace
-/test_workspace
-tests/test_workspace
 /data
 /Tutorials/workspace
 /Tutorials/data
-src/datagnosis/plugins/archived/
+src/dc_check/plugins/archived/
 
 # Temp
 .coveragerc

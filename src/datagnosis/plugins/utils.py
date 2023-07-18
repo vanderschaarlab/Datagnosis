@@ -138,19 +138,22 @@ def get_all_args_hash(all_args: dict) -> str:
 
 @validate_arguments
 def load_update_values_from_cache(path: Union[str, Path]) -> Any:
-    with open(path, "rb") as f:
+    if isinstance(path, str):
+        path = Path(path)
+    with open(path.resolve(), "rb") as f:
         return cloudpickle.load(f)
 
 
 @validate_arguments
 def cache_update_values(intermediates: List[Any], path: Union[str, Path]) -> Any:
-    path = Path(path)
+    if isinstance(path, str):
+        path = Path(path)
     ppath = path.absolute().parent
 
     if not ppath.exists():
         ppath.mkdir(parents=True, exist_ok=True)
 
-    with open(path, "wb") as f:
+    with open(path.resolve(), "wb") as f:
         return cloudpickle.dump(intermediates, f)
 
 

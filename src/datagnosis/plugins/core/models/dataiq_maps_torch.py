@@ -1,5 +1,5 @@
 # stdlib
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Union
 
 # third party
 import numpy as np
@@ -34,11 +34,11 @@ class DataIQ_MAPS_Torch:
         self._sparse_labels = sparse_labels
 
         # placeholder
-        self._gold_labels_probabilities = None
-        self._true_probabilities = None
+        self._gold_labels_probabilities: Optional[np.ndarray] = None
+        self._true_probabilities: Optional[np.ndarray] = None
 
     def on_epoch_end(
-        self, net: nn.Module, device: Union[str, torch.device] = DEVICE, **kwargs
+        self, net: nn.Module, device: Union[str, torch.device] = DEVICE, **kwargs: Any
     ) -> None:
         """
         The function computes the gold label and true label probabilities over all samples in the
@@ -58,7 +58,7 @@ class DataIQ_MAPS_Torch:
         """
 
         # Compute both the gold label and true label probabilities over all samples in the dataset
-        gold_label_probabilities = (
+        gold_label_probabilities: List = (
             list()
         )  # gold label probabilities, i.e. actual ground truth label
         true_probabilities = list()  # true label probabilities, i.e. predicted label
@@ -180,8 +180,13 @@ class DataIQ_MAPS_Torch:
         Returns:
             Aleatric uncertainty of true label probability across epochs: np.array(n_samples): np.array(n_samples)
         """
-        preds = self._gold_labels_probabilities
-        return np.mean(preds * (1 - preds), axis=-1)
+        if self._gold_labels_probabilities is None:
+            raise ValueError(
+                "`_gold_labels_probabilities` values have not been calculated. Please run on_epoch_end(), which can be done with `plugin.fit()`."
+            )
+        else:
+            preds = self._gold_labels_probabilities
+            return np.mean(preds * (1 - preds), axis=-1)
 
     @property
     def variability(self) -> np.ndarray:
@@ -189,7 +194,12 @@ class DataIQ_MAPS_Torch:
         Returns:
             Epistemic variability of true label probability across epochs: np.array(n_samples)
         """
-        return np.std(self._gold_labels_probabilities, axis=-1)
+        if self._gold_labels_probabilities is None:
+            raise ValueError(
+                "`_gold_labels_probabilities` values have not been calculated. Please run on_epoch_end(), which can be done with `plugin.fit()`."
+            )
+        else:
+            return np.std(self._gold_labels_probabilities, axis=-1)
 
     @property
     def correctness(self) -> np.ndarray:
@@ -197,7 +207,12 @@ class DataIQ_MAPS_Torch:
         Returns:
             Proportion of times a sample is predicted correctly across epochs: np.array(n_samples)
         """
-        return np.mean(self._gold_labels_probabilities > 0.5, axis=-1)
+        if self._gold_labels_probabilities is None:
+            raise ValueError(
+                "`_gold_labels_probabilities` values have not been calculated. Please run on_epoch_end(), which can be done with `plugin.fit()`."
+            )
+        else:
+            return np.mean(self._gold_labels_probabilities > 0.5, axis=-1)
 
     @property
     def entropy(self) -> np.ndarray:
@@ -205,8 +220,13 @@ class DataIQ_MAPS_Torch:
         Returns:
             Predictive entropy of true label probability across epochs: np.array(n_samples)
         """
-        X = self._gold_labels_probabilities
-        return -1 * np.sum(X * np.log(X + 1e-12), axis=-1)
+        if self._gold_labels_probabilities is None:
+            raise ValueError(
+                "`_gold_labels_probabilities` values have not been calculated. Please run on_epoch_end(), which can be done with `plugin.fit()`."
+            )
+        else:
+            X = self._gold_labels_probabilities
+            return -1 * np.sum(X * np.log(X + 1e-12), axis=-1)
 
     @property
     def mi(self) -> np.ndarray:
@@ -214,9 +234,14 @@ class DataIQ_MAPS_Torch:
         Returns:
             Mutual information of true label probability across epochs: np.array(n_samples)
         """
-        X = self._gold_labels_probabilities
-        entropy = -1 * np.sum(X * np.log(X + 1e-12), axis=-1)
+        if self._gold_labels_probabilities is None:
+            raise ValueError(
+                "`_gold_labels_probabilities` values have not been calculated. Please run on_epoch_end(), which can be done with `plugin.fit()`."
+            )
+        else:
+            X = self._gold_labels_probabilities
+            entropy = -1 * np.sum(X * np.log(X + 1e-12), axis=-1)
 
-        X = np.mean(self._gold_labels_probabilities, axis=1)
-        entropy_exp = -1 * np.sum(X * np.log(X + 1e-12), axis=-1)
-        return entropy - entropy_exp
+            X = np.mean(self._gold_labels_probabilities, axis=1)
+            entropy_exp = -1 * np.sum(X * np.log(X + 1e-12), axis=-1)
+            return entropy - entropy_exp

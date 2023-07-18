@@ -10,7 +10,7 @@ from sklearn.datasets import load_iris
 from datagnosis.plugins.core.datahandler import DataHandler, IndexedDataset
 
 
-def test_datahandler_sanity_dataframe():
+def test_datahandler_sanity_dataframe() -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
     datahander = DataHandler(X, y, batch_size=32)
 
@@ -25,7 +25,7 @@ def test_datahandler_sanity_dataframe():
     assert isinstance(datahander.dataloader_unshuffled, torch.utils.data.DataLoader)
 
 
-def test_datahandler_sanity_numpy():
+def test_datahandler_sanity_numpy() -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
 
     datahander = DataHandler(np.asarray(X), np.asarray(y), batch_size=32)
@@ -41,7 +41,7 @@ def test_datahandler_sanity_numpy():
     assert isinstance(datahander.dataloader_unshuffled, torch.utils.data.DataLoader)
 
 
-def test_datahandler_sanity_tensor():
+def test_datahandler_sanity_tensor() -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
     datahander = DataHandler(
         torch.Tensor(np.asarray(X)), torch.Tensor(np.asarray(y)), batch_size=32
@@ -58,7 +58,7 @@ def test_datahandler_sanity_tensor():
     assert isinstance(datahander.dataloader_unshuffled, torch.utils.data.DataLoader)
 
 
-def test_datahandler_toJson():
+def test_datahandler_toJson() -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
     datahander = DataHandler(X, y, batch_size=32)
     datahandler_json = datahander.toJson()
@@ -67,7 +67,7 @@ def test_datahandler_toJson():
     assert isinstance(json.loads(datahandler_json), dict)
 
 
-def test_datahandler_num_workers():
+def test_datahandler_num_workers() -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
     datahander = DataHandler(X, y, num_workers=9)
     assert datahander.dataloader.num_workers == 0

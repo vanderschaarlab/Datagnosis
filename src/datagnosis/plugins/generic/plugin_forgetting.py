@@ -38,13 +38,13 @@ class ForgettingPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=True,
         )
         self.total_samples: int = total_samples
         self.forgetting_counts: Dict = {i: 0 for i in range(self.total_samples)}
         self.last_remembered: Dict = {i: False for i in range(self.total_samples)}
         self.num_epochs: int = 0
         self.update_point: str = "per-epoch"
-        self.requires_intermediate: bool = True
 
     @staticmethod
     def name() -> str:
@@ -76,6 +76,13 @@ i.e., the time a sample correctly learned at one epoch is then forgotten.
         targets: Union[List, torch.Tensor],
         indices: Union[List, torch.Tensor],
     ) -> None:
+        if isinstance(logits, list):
+            logits = torch.Tensor(logits)
+        if isinstance(targets, list):
+            targets = torch.Tensor(targets)
+        if isinstance(indices, list):
+            indices = torch.Tensor(indices)
+
         softmax_outputs = F.softmax(logits, dim=1)
         _, predicted = torch.max(softmax_outputs.data, 1)
         predicted = predicted.detach().cpu().numpy()

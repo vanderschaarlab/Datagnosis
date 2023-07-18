@@ -38,10 +38,10 @@ class VOGPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
         self.vog: Dict = {}
         self.update_point: str = "per-epoch"
-        self.requires_intermediate: bool = False
         log.debug("initialized vog plugin")
 
     @staticmethod
@@ -68,7 +68,9 @@ class VOGPlugin(Plugin):
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
-        self, net: torch.nn.Module, device: Union[str, torch.device] = DEVICE
+        self,
+        net: torch.nn.Module,
+        device: Union[str, torch.device] = DEVICE,
     ) -> None:
         net.eval()
         idx = 0

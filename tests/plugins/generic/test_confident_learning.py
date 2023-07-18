@@ -55,19 +55,7 @@ def test_plugin_fit(test_plugin: Plugin) -> None:
         use_caches_if_exist=False,
         workspace="test_workspace",
     )
-
-
-@pytest.mark.parametrize(
-    "test_plugin", generate_fixtures(plugin_name, plugin, plugin_args)
-)
-def test_plugin_fit(test_plugin: Plugin) -> None:
-    X, y = load_iris(return_X_y=True, as_frame=True)
-    datahander = DataHandler(X, y, batch_size=32)
-    test_plugin.fit(
-        datahandler=datahander,
-        use_caches_if_exist=False,
-        workspace="test_workspace",
-    )
+    assert test_plugin.has_been_fit is True
 
 
 @pytest.mark.parametrize(

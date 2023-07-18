@@ -1,5 +1,5 @@
 # stdlib
-from typing import List, Optional, Union
+from typing import Any, Optional, Tuple, Union
 
 # third party
 import numpy as np
@@ -43,9 +43,9 @@ class GRANDPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
         self.update_point: str = "per-epoch"
-        self.requires_intermediate: bool = False
         log.debug("GRAND plugin initialized.")
 
     @staticmethod
@@ -72,7 +72,9 @@ class GRANDPlugin(Plugin):
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
-        self, net: torch.nn.Module, device: Union[str, torch.device] = DEVICE
+        self,
+        net: torch.nn.Module,
+        device: Union[str, torch.device] = DEVICE,
     ) -> None:
         self.net = net
         self.device = device
@@ -86,7 +88,9 @@ class GRANDPlugin(Plugin):
         else:
             fmodel, params, buffers = make_functional_with_buffers(self.net)
 
-            def compute_loss_stateless_model(params, buffers, sample, target):
+            def compute_loss_stateless_model(
+                params: Any, buffers: Tuple, sample: torch.Tensor, target: torch.Tensor
+            ) -> torch.Tensor:
                 batch = sample.unsqueeze(0)
                 targets = target.unsqueeze(0)
 
@@ -108,7 +112,9 @@ class GRANDPlugin(Plugin):
                     params, buffers, inputs, targets
                 )
 
-                squared_norm = 0
+                squared_norm: torch.Tensor = torch.zeros(
+                    ft_per_sample_grads[0].shape[0]
+                ).to(self.device)
                 for param_grad in ft_per_sample_grads:
                     squared_norm += param_grad.flatten(1).square().sum(dim=-1)
                 grad_norms.append(squared_norm.detach().cpu().numpy() ** 0.5)

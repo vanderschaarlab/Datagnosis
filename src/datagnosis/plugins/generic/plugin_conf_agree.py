@@ -38,10 +38,10 @@ class ConfAgreePlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
         self.mean_scores: List = []
         self.update_point: str = "post-epoch"
-        self.requires_intermediate: bool = False
         log.debug("ConfAgreePlugin initialized")
 
     @staticmethod
@@ -71,7 +71,9 @@ ensemble of models are not collectively confident about how to classify the data
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
-        self, net: torch.nn.Module, device: Union[torch.device, str] = DEVICE
+        self,
+        net: torch.nn.Module,
+        device: Union[torch.device, str] = DEVICE,
     ) -> None:
         net.train()
 

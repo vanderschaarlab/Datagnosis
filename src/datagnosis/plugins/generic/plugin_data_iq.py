@@ -39,9 +39,9 @@ class DataIQPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
         self.update_point: str = "per-epoch"
-        self.requires_intermediate: bool = False
         log.debug("DataIQPlugin initialized")
 
     @staticmethod
@@ -71,7 +71,9 @@ define the category `Easy`. Low Confidence scores define `Hard`. High Aleatoric 
 """
 
     def _updates(
-        self, net: torch.nn.Module, device: Union[torch.device, str] = DEVICE
+        self,
+        net: torch.nn.Module,
+        device: Union[torch.device, str] = DEVICE,
     ) -> None:
         self.data_eval = DataIQ_MAPS_Torch(
             dataloader=self.dataloader, sparse_labels=True

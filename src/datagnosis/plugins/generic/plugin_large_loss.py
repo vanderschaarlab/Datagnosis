@@ -38,10 +38,10 @@ class LargeLossPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=True,
         )
         self.losses: List = []
         self.update_point: str = "per-epoch"
-        self.requires_intermediate: bool = True
         log.debug("LargeLossPlugin initialized.")
 
     @staticmethod
@@ -68,8 +68,14 @@ class LargeLossPlugin(Plugin):
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
-        self, logits: Union[List, torch.Tensor], targets: Union[List, torch.Tensor]
+        self,
+        logits: Union[List, torch.Tensor],
+        targets: Union[List, torch.Tensor],
     ) -> None:
+        if isinstance(logits, list):
+            logits = torch.Tensor(logits)
+        if isinstance(targets, list):
+            targets = torch.Tensor(targets)
         # compute the loss for each sample separately
         epoch_losses = []
         for i in range(len(logits)):

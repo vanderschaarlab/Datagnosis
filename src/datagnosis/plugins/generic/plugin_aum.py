@@ -1,6 +1,6 @@
 # stdlib
-import inspect
 import os
+from pathlib import Path
 from typing import List, Optional, Union
 
 # third party
@@ -33,7 +33,7 @@ class AUMPlugin(Plugin):
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
         # specific kwargs
-        save_dir=".",
+        save_dir: Union[Path, str] = ".",
     ):
         super().__init__(
             model=model,
@@ -44,12 +44,13 @@ class AUMPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
-
-        self.aum_calculator = AUMCalculator(save_dir, compressed=True)
+        save_dir = save_dir if isinstance(save_dir, Path) else Path(save_dir)
+        self.aum_calculator = AUMCalculator(save_dir.resolve(), compressed=True)
         self.aum_scores: List = []
         self.update_point: str = "mid-epoch"
-        self.requires_intermediate: bool = False
+
         log.debug("initialized aum plugin")
 
     @staticmethod
@@ -87,8 +88,11 @@ datapoints, you should look for samples with low AUMs.
         y_batch: Union[List, torch.Tensor],
         sample_ids: Union[List, torch.Tensor],
     ) -> None:
-        # override method1
-        records = self.aum_calculator.update(
+        if isinstance(y_batch, list):
+            y_batch = torch.Tensor(y_batch)
+        if isinstance(sample_ids, list):
+            sample_ids = torch.Tensor(sample_ids)
+        self.aum_calculator.update(
             y_pred, y_batch.type(torch.int64), sample_ids.cpu().numpy()
         )
 

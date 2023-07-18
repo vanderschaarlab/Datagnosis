@@ -1,7 +1,7 @@
 # stdlib
 import json
 from abc import ABCMeta
-from typing import Optional, Union
+from typing import Any, Optional, Tuple, Union
 
 # third party
 import numpy as np
@@ -16,11 +16,11 @@ from datagnosis.utils.reproducibility import enable_reproducible_results
 
 
 class IndexedDataset(TensorDataset):
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, torch.Tensor, int]:
         data, target = TensorDataset.__getitem__(self, index)
         return data, target, index
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.tensors[0].shape[0]
 
 
@@ -32,7 +32,7 @@ class DataHandler(metaclass=ABCMeta):
         y: Union[pd.Series, np.ndarray, torch.Tensor],
         batch_size: Optional[int] = None,
         reproducible: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ):
         if reproducible:
             enable_reproducible_results(0)
@@ -76,5 +76,5 @@ class DataHandler(metaclass=ABCMeta):
             **kwargs,
         )
 
-    def toJson(self):
+    def toJson(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

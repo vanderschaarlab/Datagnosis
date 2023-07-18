@@ -40,10 +40,10 @@ class AllSHPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
         self.kl_divergences: List = []
         self.update_point: str = "post-epoch"
-        self.requires_intermediate: bool = False
         log.debug("initialized allsh plugin")
 
     @staticmethod
@@ -63,10 +63,16 @@ class AllSHPlugin(Plugin):
     def hard_direction() -> str:
         return "high"
 
+    @staticmethod
+    def score_description() -> str:
+        return """The KL divergence between the softmaxes of the original and augmented images.
+"""
+
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(self, net: nn.Module, device: Union[str, torch.device]) -> None:
         log.info("updating allsh plugin")
         net.eval()
+        net.to(device)
 
         to_pil = ToPILImage()
 

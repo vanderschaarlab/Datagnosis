@@ -1,5 +1,4 @@
 # third party
-import torch
 from sklearn.datasets import load_breast_cancer, load_iris, load_wine
 
 # datagnosis absolute
@@ -8,7 +7,7 @@ from datagnosis.plugins.core.models.dataiq_maps_torch import DataIQ_MAPS_Torch
 from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
 
 
-def test_dataiq_maps_torch_iris():
+def test_dataiq_maps_torch_iris() -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
     data_handler = DataHandler(X, y, batch_size=32)
     dataloader = data_handler.dataloader
@@ -28,7 +27,7 @@ def test_dataiq_maps_torch_iris():
     assert test_dataiq_maps_torch.mi is not None
 
 
-def test_dataiq_maps_torch_breast_cancer():
+def test_dataiq_maps_torch_breast_cancer() -> None:
     X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     data_handler = DataHandler(X, y)
     dataloader = data_handler.dataloader
@@ -48,7 +47,7 @@ def test_dataiq_maps_torch_breast_cancer():
     assert test_dataiq_maps_torch.mi is not None
 
 
-def test_dataiq_maps_torch_breast_cancer_batched():
+def test_dataiq_maps_torch_breast_cancer_batched() -> None:
     X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     data_handler = DataHandler(X, y, batch_size=32)
     dataloader = data_handler.dataloader
@@ -68,7 +67,7 @@ def test_dataiq_maps_torch_breast_cancer_batched():
     assert test_dataiq_maps_torch.mi is not None
 
 
-def test_dataiq_maps_torch_wine():
+def test_dataiq_maps_torch_wine() -> None:
     X, y = load_wine(return_X_y=True, as_frame=True)
     data_handler = DataHandler(X, y, batch_size=32)
     dataloader = data_handler.dataloader

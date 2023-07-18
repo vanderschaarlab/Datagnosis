@@ -1,5 +1,5 @@
 # stdlib
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 # third party
 import numpy as np
@@ -38,10 +38,10 @@ class PrototypicalityPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
         self.cosine_scores: List = []
         self.update_point: str = "post-epoch"
-        self.requires_intermediate: bool = False
         log.debug("PrototypicalityPlugin initialized.")
 
     @staticmethod
@@ -69,10 +69,12 @@ distance of the sample to the class centroid as the metric to characterize data.
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
-        self, net: torch.nn.Module, device: Union[str, torch.device] = DEVICE
+        self,
+        net: torch.nn.Module,
+        device: Union[str, torch.device] = DEVICE,
     ) -> None:
         # Initialize accumulators for embeddings and counts for each label
-        embeddings_dict = {i: [] for i in range(self.num_classes)}
+        embeddings_dict: Dict[int, List] = {i: [] for i in range(self.num_classes)}
         log.debug("computing mean embeddings...")
         for batch_idx, data in enumerate(self.dataloader):
             x, y, _ = data

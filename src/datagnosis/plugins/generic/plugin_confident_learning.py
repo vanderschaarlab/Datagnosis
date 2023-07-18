@@ -42,9 +42,9 @@ class ConfidentLearningPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=True,
         )
         self.update_point: str = "post-epoch"
-        self.requires_intermediate: bool = True
         self.logits: Optional[Union[torch.Tensor, np.ndarray]] = None
         self.targets: Optional[Union[torch.Tensor, np.ndarray]] = None
         self.probs: Optional[Union[torch.Tensor, np.ndarray]] = None
@@ -80,7 +80,13 @@ predictions than the true labels.
         logits: Union[torch.Tensor, np.ndarray],
         targets: Union[torch.Tensor, np.ndarray],
         probs: Union[torch.Tensor, np.ndarray],
-    ):
+    ) -> None:
+        if isinstance(logits, np.ndarray):
+            logits = torch.from_numpy(logits)
+        if isinstance(targets, np.ndarray):
+            targets = torch.from_numpy(targets)
+        if isinstance(probs, np.ndarray):
+            probs = torch.from_numpy(probs)
         self.logits = logits
         self.targets = targets.detach().cpu().numpy()
         self.probs = probs.detach().cpu().numpy()

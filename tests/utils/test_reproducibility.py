@@ -1,13 +1,8 @@
-# stdlib
-import sys
-
 # third party
 import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
 # datagnosis absolute
 from datagnosis.plugins import Plugins

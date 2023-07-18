@@ -40,11 +40,11 @@ class EL2NPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=True,
         )
         self.unnormalized_model_outputs: Optional[Union[List, torch.Tensor]] = None
         self.targets: Optional[Union[List, torch.Tensor]] = None
         self.update_point: str = "per-epoch"
-        self.requires_intermediate: bool = True
         log.debug("EL2N plugin initialized.")
 
     @staticmethod
@@ -71,8 +71,14 @@ class EL2NPlugin(Plugin):
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
-        self, logits: Union[List, torch.Tensor], targets: Union[List, torch.Tensor]
+        self,
+        logits: Union[List, torch.Tensor],
+        targets: Union[List, torch.Tensor],
     ) -> None:
+        if isinstance(logits, list):
+            logits = torch.Tensor(logits)
+        if isinstance(targets, list):
+            targets = torch.Tensor(targets)
         self.unnormalized_model_outputs = logits
         self.targets = targets
 
@@ -83,18 +89,26 @@ class EL2NPlugin(Plugin):
         if not recompute and self._scores is not None:
             return self._scores
         else:
-            if len(self.targets.shape) == 1:
-                self.targets = F.one_hot(
-                    self.targets, num_classes=self.unnormalized_model_outputs.size(1)
-                ).float()
+            if not isinstance(self.targets, torch.Tensor) or not isinstance(
+                self.unnormalized_model_outputs, torch.Tensor
+            ):
+                raise ValueError(
+                    "Variables [self.targets, self.unnormalized_model_outputs] should all be tensors. Please call `fit()` before `compute_scores()`."
+                )
+            else:
+                if len(self.targets.shape) == 1:
+                    self.targets = F.one_hot(
+                        self.targets,
+                        num_classes=self.unnormalized_model_outputs.size(1),
+                    ).float()
 
-            # compute the softmax of the unnormalized model outputs
-            softmax_outputs = F.softmax(self.unnormalized_model_outputs, dim=1)
+                # compute the softmax of the unnormalized model outputs
+                softmax_outputs = F.softmax(self.unnormalized_model_outputs, dim=1)
 
-            # compute the squared L2 norm of the difference between the softmax outputs and the target labels
-            el2n_score = torch.sum((softmax_outputs - self.targets) ** 2, dim=1)
-            self._scores = el2n_score.detach().cpu().numpy()
-            return self._scores
+                # compute the squared L2 norm of the difference between the softmax outputs and the target labels
+                el2n_score = torch.sum((softmax_outputs - self.targets) ** 2, dim=1)
+                self._scores = el2n_score.detach().cpu().numpy()
+                return self._scores
 
 
 plugin = EL2NPlugin

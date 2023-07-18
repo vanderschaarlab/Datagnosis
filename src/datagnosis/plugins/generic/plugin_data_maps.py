@@ -1,5 +1,5 @@
 # stdlib
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 # third party
 import numpy as np
@@ -29,6 +29,7 @@ class DataMapsPlugin(Plugin):
         num_classes: int,
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
+        requires_intermediate: bool = False,
     ):
         super().__init__(
             model=model,
@@ -41,7 +42,6 @@ class DataMapsPlugin(Plugin):
             logging_interval=logging_interval,
         )
         self.update_point: str = "per-epoch"
-        self.requires_intermediate: bool = False
         log.debug("DataMapsPlugin initialized")
 
     @staticmethod
@@ -72,14 +72,16 @@ misclassified (or hard to classify) by the model.
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
-        self, net: torch.nn.Module, device: Union[torch.device, str] = DEVICE
+        self,
+        net: torch.nn.Module,
+        device: Union[torch.device, str] = DEVICE,
     ) -> None:
         self.data_eval = DataIQ_MAPS_Torch(
             dataloader=self.dataloader, sparse_labels=True
         )
         self.data_eval.on_epoch_end(net=net, device=device, gradient=False)
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_arguments
     def compute_scores(self, recompute: bool = False) -> Tuple[np.ndarray, np.ndarray]:
         if not self.has_been_fit:
             raise ValueError("Plugin has not been fit yet.")

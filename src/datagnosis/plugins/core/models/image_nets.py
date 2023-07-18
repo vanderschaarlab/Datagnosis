@@ -1,13 +1,15 @@
+# stdlib
+from typing import List
+
 # third party
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from pydantic import validate_arguments
 
 
 # This is a neural network class with two dropout layers used for image classification.
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self) -> None:
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 6, 5)
         self.pool = nn.MaxPool2d(2, 2)
@@ -19,7 +21,6 @@ class Net(nn.Module):
         self.dropout1 = nn.Dropout(p=0.2)
         self.dropout2 = nn.Dropout(p=0.2)
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
         x = self.pool(torch.relu(self.conv1(x)))
         x = self.pool(torch.relu(self.conv2(x)))
@@ -38,8 +39,7 @@ class Net(nn.Module):
 
 # The LeNet class is a neural network model
 class LeNet(nn.Module):
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def __init__(self, num_classes: int):
+    def __init__(self, num_classes: int) -> None:
         super(LeNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 6, kernel_size=5)
         self.conv2 = nn.Conv2d(6, 16, kernel_size=5)
@@ -49,7 +49,6 @@ class LeNet(nn.Module):
         self.dropout1 = nn.Dropout(p=0.2)
         self.dropout2 = nn.Dropout(p=0.2)
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
         x = F.relu(self.conv1(x))
         x = self.dropout1(x)
@@ -70,8 +69,7 @@ class LeNet(nn.Module):
 
 # The LeNetMNIST class is a neural network model for use on the MNIST dataset.
 class LeNetMNIST(nn.Module):
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def __init__(self, num_classes: int):
+    def __init__(self, num_classes: int) -> None:
         super(LeNetMNIST, self).__init__()
         self.conv1 = nn.Conv2d(1, 20, 5, 1)
         self.conv2 = nn.Conv2d(20, 50, 5, 1)
@@ -80,7 +78,6 @@ class LeNetMNIST(nn.Module):
         self.dropout1 = nn.Dropout(p=0.2)
         self.dropout2 = nn.Dropout(p=0.2)
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
         x = F.relu(self.conv1(x))
         x = self.dropout1(x)
@@ -107,8 +104,7 @@ Deep Residual Learning for Image Recognition. arXiv:1512.03385
 class BasicBlock(nn.Module):
     expansion: int = 1
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def __init__(self, in_planes: int, planes: int, stride: int = 1):
+    def __init__(self, in_planes: int, planes: int, stride: int = 1) -> None:
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(
             in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False
@@ -132,7 +128,6 @@ class BasicBlock(nn.Module):
                 nn.BatchNorm2d(self.expansion * planes),
             )
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
@@ -144,8 +139,7 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
     expansion: int = 4
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def __init__(self, in_planes: int, planes: int, stride: int = 1):
+    def __init__(self, in_planes: int, planes: int, stride: int = 1) -> None:
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -171,7 +165,6 @@ class Bottleneck(nn.Module):
                 nn.BatchNorm2d(self.expansion * planes),
             )
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = F.relu(self.bn1(self.conv1(x)))
         out = F.relu(self.bn2(self.conv2(out)))
@@ -183,8 +176,9 @@ class Bottleneck(nn.Module):
 
 # This is a ResNet model for MNIST dataset
 class ResNetMNIST(nn.Module):
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def __init__(self, block: nn.Module, num_blocks: int, num_classes: int = 10):
+    def __init__(
+        self, block: nn.Module, num_blocks: List[int], num_classes: int = 10
+    ) -> None:
         super(ResNetMNIST, self).__init__()
         self.in_planes: int = 64
 
@@ -200,7 +194,6 @@ class ResNetMNIST(nn.Module):
         self.dropout2 = nn.Dropout(p=0.2)
         self.dropout3 = nn.Dropout(p=0.2)
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _make_layer(
         self, block: nn.Module, planes: int, num_blocks: int, stride: int
     ) -> nn.Module:
@@ -211,7 +204,6 @@ class ResNetMNIST(nn.Module):
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
@@ -232,8 +224,9 @@ class ResNetMNIST(nn.Module):
 
 # This is a ResNet model
 class ResNet(nn.Module):
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def __init__(self, block: nn.Module, num_blocks: int, num_classes: int = 10):
+    def __init__(
+        self, block: nn.Module, num_blocks: List[int], num_classes: int = 10
+    ) -> None:
         super(ResNet, self).__init__()
         self.in_planes: int = 64
 
@@ -249,7 +242,6 @@ class ResNet(nn.Module):
         self.dropout2 = nn.Dropout(p=0.2)
         self.dropout3 = nn.Dropout(p=0.2)
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _make_layer(
         self, block: nn.Module, planes: int, num_blocks: int, stride: int
     ) -> nn.Module:
@@ -260,7 +252,6 @@ class ResNet(nn.Module):
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
-    # @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)

@@ -3,7 +3,7 @@ import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 # third party
 import augly.image as imaugs
@@ -11,19 +11,18 @@ import cloudpickle
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision.transforms as transforms
+from PIL import Image
 from pydantic import validate_arguments
 from torch.utils.data import DataLoader
 
 # datagnosis absolute
-import datagnosis.logger as log
 from datagnosis.plugins.core.datahandler import DataHandler
 from datagnosis.utils.constants import DEVICE
 
 
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
-def apply_augly(image) -> torch.Tensor:
+def apply_augly(image: Image.Image) -> torch.Tensor:
     """
     The function applies a set of image augmentations using the AugLy library and returns the augmented
     image as a tensor. It is used for the ALLS HCM for the augmentation
@@ -50,7 +49,7 @@ def apply_augly(image) -> torch.Tensor:
 
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def kl_divergence(
-    p: Union[np.ndarray, torch.Tensor, List], q: Union[np.ndarray, torch.Tensor, List]
+    p: Union[np.ndarray, torch.Tensor], q: Union[np.ndarray, torch.Tensor]
 ) -> Union[np.ndarray, torch.Tensor, List]:
     """
     The function calculates the Kullback-Leibler divergence between two probability distributions.
@@ -151,13 +150,14 @@ def cache_update_values(intermediates: List[Any], path: Union[str, Path]) -> Any
     if not ppath.exists():
         ppath.mkdir(parents=True, exist_ok=True)
 
-    intermediates
     with open(path, "wb") as f:
         return cloudpickle.dump(intermediates, f)
 
 
 # Used in "GraNd" plugin to migrate from old functorch implementation to torch>=2.0
-def make_functional_with_buffers(mod, disable_autograd_tracking=False):
+def make_functional_with_buffers(
+    mod: nn.Module, disable_autograd_tracking: bool = False
+) -> Tuple[Callable, Any, Tuple]:
     params_dict = dict(mod.named_parameters())
     params_names = params_dict.keys()
     params_values = tuple(params_dict.values())
@@ -169,7 +169,9 @@ def make_functional_with_buffers(mod, disable_autograd_tracking=False):
     stateless_mod = deepcopy(mod)
     stateless_mod.to("meta")
 
-    def fmodel(new_params_values, new_buffers_values, *args, **kwargs):
+    def fmodel(
+        new_params_values: Any, new_buffers_values: Any, *args: Any, **kwargs: Any
+    ) -> Callable:
         new_params_dict = {
             name: value for name, value in zip(params_names, new_params_values)
         }

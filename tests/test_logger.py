@@ -1,12 +1,8 @@
-# stdlib
-import pprint
-import sys
-
 # datagnosis absolute
 import datagnosis.logger as log
 
 
-def test_logger_sanity():
+def test_logger_sanity() -> None:
     assert log is not None
     assert log.__name__ == "datagnosis.logger"
     assert log.critical is not None

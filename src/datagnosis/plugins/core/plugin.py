@@ -43,6 +43,7 @@ class Plugin(metaclass=ABCMeta):
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
         reproducible: bool = True,
+        requires_intermediate: bool = False,
     ):
         self.model = model
         self.criterion = criterion
@@ -51,13 +52,14 @@ class Plugin(metaclass=ABCMeta):
         self.lr = lr
         self.epochs = epochs
         self.num_classes = num_classes
-        self._scores = None
-        self.update_point = "post-epoch"
-        self.logging_interval = logging_interval
-        self.data_uncert_class = None
-        self.has_been_fit = False
-        self.score_names = None
         self.reproducible = reproducible
+        self.logging_interval = logging_interval
+        self.requires_intermediate = requires_intermediate
+        self.update_point: str = "post-epoch"
+        self.data_uncert_class = None
+        self.has_been_fit: bool = False
+        self.score_names: Optional[Union[Tuple, np.ndarray]] = None
+        self._scores: Optional[Union[Tuple[np.ndarray, np.ndarray], np.ndarray]] = None
         clear_cache()
         if self.reproducible:
             log.debug("Fixing seed for reproducibility.")
@@ -82,7 +84,8 @@ class Plugin(metaclass=ABCMeta):
         """The type of the plugin."""
         ...
 
-    @classmethod
+    @staticmethod
+    @abstractmethod
     def hard_direction() -> str:
         """
         The direction of the scores for the plugin.
@@ -90,7 +93,8 @@ class Plugin(metaclass=ABCMeta):
         """
         ...
 
-    @classmethod
+    @staticmethod
+    @abstractmethod
     def score_description() -> str:
         """A description of the scores for the plugin."""
         ...
@@ -104,12 +108,12 @@ class Plugin(metaclass=ABCMeta):
         self,
         datahandler: DataHandler,
         use_caches_if_exist: bool = True,
-        workspace: Path = Path("workspace/"),
-        *args,
-        **kwargs,
-    ):
+        workspace: Union[Path, str] = Path("workspace/"),
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         log.debug(f"self.has_been_fit {self.has_been_fit}")
-        if self.has_been_fit == True:
+        if self.has_been_fit is True:
             log.critical(f"Plugin {self.name()} has already been fit.")
             raise RuntimeError(
                 f"Plugin {self.name()} has already been fit. Re-fitting is not allowed. If you wish to fit with different parameters, please create a new instance of the plugin."
@@ -205,7 +209,7 @@ class Plugin(metaclass=ABCMeta):
             targets = None
             probs = None
             indices = None
-            if self.requires_intermediate == True:
+            if self.requires_intermediate is True:
                 intermediates_cache_file = (
                     self.workspace
                     / f"{self.name()}_intermediates_epoch:{epoch}_{kwargs_hash}_{platform.python_version()}.bkp"
@@ -266,14 +270,16 @@ class Plugin(metaclass=ABCMeta):
                 targets=targets,
                 probs=probs,
             )
-
         self.has_been_fit = True
+        self.compute_scores()
+        log.debug("Plugin fit complete and scores computed.")
 
     def _safe_update(self, **kwargs: Any) -> None:
         if all([kwa in kwargs for kwa in self._updates_params]):
             filtered_kwargs = {
                 k: v for k, v in kwargs.items() if k in self._updates_params
             }
+            log.debug(f"Updating plugin with {filtered_kwargs}.")
             self._updates(**filtered_kwargs)
         else:
             raise ValueError(
@@ -285,49 +291,54 @@ Missing required arguments for {self.update_point} update. Required arguments ar
 
     def _extract_datapoints_by_threshold(
         self,
-        threshold: float,
-        threshold_range: Tuple[Union[float, int], Union[float, int]],
+        threshold: Optional[float],
+        threshold_range: Optional[Tuple[Union[float, int], Union[float, int]]],
         hardness: str,
     ) -> np.ndarray:
         """Extract datapoints from the plugin model by thresholding the scores"""
-        extraction_scores = deepcopy(self.scores)
-        if isinstance(extraction_scores, tuple):
-            extraction_scores = extraction_scores[0]
-        if threshold_range is None:
-            if hardness == "hard":
-                if self.hard_direction() == "low":
-                    extracted = np.where(
-                        extraction_scores < np.max(extraction_scores) - threshold
-                    )
-                else:
-                    extracted = np.where(
-                        extraction_scores > np.max(extraction_scores) + threshold
-                    )
-            else:
-                if self.hard_direction() == "high":
-                    extracted = np.where(
-                        extraction_scores < np.max(extraction_scores) - threshold
-                    )
-                else:
-                    extracted = np.where(
-                        extraction_scores > np.max(extraction_scores) + threshold
-                    )
-        else:
-            if threshold != 0.01:
-                log.warning(
-                    "You have provided a threshold_range but also a threshold. The threshold will be ignored."
-                )
-
-            extracted = np.where(
-                (extraction_scores >= threshold_range[0])
-                & (extraction_scores <= threshold_range[1])
+        if self._scores is None:
+            raise ValueError(
+                "You must fit the plugin before extracting datapoints by threshold"
             )
-        extracted = extracted[0].tolist()
+        else:
+            extraction_scores = deepcopy(self._scores)
+            if isinstance(extraction_scores, tuple):
+                extraction_scores = extraction_scores[0]
+            if threshold_range is None:
+                if hardness == "hard":
+                    if self.hard_direction() == "low":
+                        extracted = np.where(
+                            extraction_scores < np.max(extraction_scores) - threshold
+                        )
+                    else:
+                        extracted = np.where(
+                            extraction_scores > np.max(extraction_scores) + threshold
+                        )
+                else:
+                    if self.hard_direction() == "high":
+                        extracted = np.where(
+                            extraction_scores < np.max(extraction_scores) - threshold
+                        )
+                    else:
+                        extracted = np.where(
+                            extraction_scores > np.max(extraction_scores) + threshold
+                        )
+            else:
+                if threshold is not None:
+                    log.warning(
+                        "You have provided a threshold_range but also a threshold. The threshold will be ignored."
+                    )
 
-        return (
-            self.dataloader_unshuffled.dataset[extracted],
-            extraction_scores[extracted],
-        )
+                extracted = np.where(
+                    (extraction_scores >= threshold_range[0])
+                    & (extraction_scores <= threshold_range[1])
+                )
+            extracted = extracted[0].tolist()
+
+            return (
+                self.dataloader_unshuffled.dataset[extracted],
+                extraction_scores[extracted],
+            )
 
     def _extract_datapoints_by_top_n(
         self,
@@ -336,7 +347,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         sort: bool = True,
     ) -> np.ndarray:
         """Extract datapoints from the plugin model by selecting the top n scores"""
-        extraction_scores = deepcopy(self.scores)
+        extraction_scores = deepcopy(self._scores)
         if isinstance(extraction_scores, tuple):
             extraction_scores = extraction_scores[0]
         if hardness == "hard":
@@ -357,7 +368,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         )
 
     def _extract_datapoints_by_index(self, indices: List[int]) -> np.ndarray:
-        extraction_scores = deepcopy(self.scores)
+        extraction_scores = deepcopy(self._scores)
         if isinstance(extraction_scores, tuple):
             extraction_scores = extraction_scores[0]
         return (self.dataloader_unshuffled.dataset[indices], extraction_scores[indices])
@@ -430,29 +441,37 @@ Missing required arguments for {self.update_point} update. Required arguments ar
             )
 
     @abstractmethod
-    def _updates(self):
+    def _updates(self, *args: Any, **kwargs: Any) -> None:
         """Update the plugin model"""
         ...
 
     @abstractmethod
-    def compute_scores(self):
+    def compute_scores(self) -> None:
         ...
 
     @property
-    def scores(self):
-        if self._scores is None:
-            self.compute_scores()
-        return self._scores
+    def scores(self) -> np.ndarray:
+        if self.has_been_fit:
+            if self._scores is not None:
+                return self._scores
+            else:
+                raise ValueError(
+                    "Scores have not been computed. Check that `compute_scores()` was called in the `fit()` method."
+                )
+        else:
+            raise ValueError(
+                "Plugin has not been fit. `fit()` must be run before getting scores."
+            )
 
     @validate_arguments
     def plot_scores(
         self,
-        *args,
+        *args: Any,
         axis: Optional[int] = None,
         show: bool = True,
         plot_type: Literal["scatter", "dist"] = "dist",
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """Plot the scores"""
         log.info(f"Plotting {self.name()} scores")
         if self._scores is None:

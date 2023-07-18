@@ -1,3 +1,6 @@
+# stdlib
+from typing import List, Union
+
 # third party
 import numpy as np
 import pytest
@@ -20,5 +23,5 @@ from datagnosis.plugins.core.utils import check_dim
         ((1, 2), 2),
     ],
 )
-def test_check_dim(x, expected):
+def test_check_dim(x: Union[torch.Tensor, np.ndarray, List], expected: int) -> None:
     assert check_dim(x) == expected

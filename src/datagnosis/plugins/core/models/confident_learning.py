@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any, List
+from typing import List
 
 # third party
 import numpy as np

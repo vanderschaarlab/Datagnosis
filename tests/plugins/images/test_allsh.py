@@ -1,3 +1,6 @@
+# stdlib
+from typing import List
+
 # third party
 import numpy as np
 import pytest
@@ -81,7 +84,7 @@ def test_plugin_type(test_plugin: Plugin) -> None:
         (generate_fixtures(plugin_name, plugin, plugin_args_mnist_resnet)),
     ],
 )
-def test_plugin_fit_mnist(test_plugins: Plugin) -> None:
+def test_plugin_fit_mnist(test_plugins: List[Plugin]) -> None:
     X, y, _, _ = load_mnist()
     X = X[:100]
     y = y[:100]
@@ -101,7 +104,7 @@ def test_plugin_fit_mnist(test_plugins: Plugin) -> None:
         generate_fixtures(plugin_name, plugin, plugin_args_cifar_resnet),
     ],
 )
-def test_plugin_fit_cifar(test_plugins: Plugin) -> None:
+def test_plugin_fit_cifar(test_plugins: List[Plugin]) -> None:
     X, y, _, _ = load_cifar()
     X = X[:100]
     y = y[:100]

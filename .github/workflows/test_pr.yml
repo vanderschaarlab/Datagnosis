@@ -44,10 +44,3 @@ jobs:
           python -m pip install -U pip
           pip install .[testing]
           python -m pytest -vvvs --durations=50
-        if: ${{ matrix.os != 'windows-latest' }}
-      - name: Test with pytest (windows)
-        run: |
-          python -m pip install -U pip
-          pip install .[testing]
-          pytest -vvvs -p no:faulthandler --durations=50
-        if: ${{ matrix.os == 'windows-latest' }}

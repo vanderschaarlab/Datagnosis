@@ -140,7 +140,7 @@ class Plugin(metaclass=ABCMeta):
                 log.debug(f"Running Epoch {epoch}, batch {batch_idx}")
                 update_values_cache_file = (
                     self.workspace
-                    / f"{self.name()}_epoch:{epoch}_batch:{batch_idx}_{kwargs_hash}_{platform.python_version()}.bkp"
+                    / f"{self.name()}_epoch-{epoch}_batch-{batch_idx}_{kwargs_hash}_{platform.python_version()}.bkp"
                 )
                 if (
                     use_caches_if_exist

@@ -15,9 +15,7 @@ from datagnosis.plugins.core.plugin import DEVICE, Plugin
 from datagnosis.plugins.utils import apply_augly, kl_divergence
 
 
-# This is a class that computes scores for ALLSH
 class AllSHPlugin(Plugin):
-    # Based on: https://arxiv.org/abs/2205.04980
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
@@ -31,6 +29,22 @@ class AllSHPlugin(Plugin):
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
     ):
+        """
+        This is a class that computes scores for Active Learning Guided by Local Sensitivity and Hardness (ALLSH)
+
+        Based on: https://arxiv.org/abs/2205.04980
+
+        Args:
+
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+        """
         super().__init__(
             model=model,
             criterion=criterion,
@@ -48,28 +62,57 @@ class AllSHPlugin(Plugin):
 
     @staticmethod
     def name() -> str:
+        """
+        Returns:
+            str: The name of the plugin.
+        """
         return "allsh"
 
     @staticmethod
     def long_name() -> str:
+        """
+        Returns:
+            str: The long name of the plugin.
+        """
         return "Active Learning Guided by Local Sensitivity and Hardness"
 
     @staticmethod
     def type() -> str:
-        """The type of the plugin."""
+        """
+        Returns:
+            str: The type of the plugin.
+        """
         return "images"
 
     @staticmethod
     def hard_direction() -> str:
+        """
+        Returns:
+            str: The direction of hardness for the plugin, i.e. whether high or low scores indicate hardness.
+        """
         return "high"
 
     @staticmethod
     def score_description() -> str:
-        return """The KL divergence between the softmaxes of the original and augmented images.
-"""
+        """
+        Returns:
+            str: A description of the score.
+        """
+        return """The KL divergence between the softmaxes of the original and augmented images."""
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def _updates(self, net: nn.Module, device: Union[str, torch.device]) -> None:
+    def _updates(
+        self, net: nn.Module, device: Union[str, torch.device] = DEVICE
+    ) -> None:
+        """
+        An internal method that updates the plugin's internal state with the latest model.
+        This method is called by the plugin's update method. It sets the plugin's kl_divergences
+        attribute to the KL divergence between the softmaxes of the original and augmented images.
+
+        Args:
+            net (nn.Module): The model to update the plugin with.
+            device (Union[str, torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+        """
         log.info("updating allsh plugin")
         net.eval()
         net.to(device)
@@ -102,7 +145,14 @@ class AllSHPlugin(Plugin):
                 self.kl_divergences.extend(kl_div.cpu().numpy().tolist())
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self) -> List:
+    def compute_scores(self) -> np.ndarray:
+        """
+        A method that computes the scores for the plugin. It returns the plugin's kl_divergences attribute,
+        which has been calculated by the plugin's _updates method and now converted to a numpy array.
+
+        Returns:
+            np.ndarray: The ALLSH scores, as calculated by the kl divergences.
+        """
         log.info("computing scores for allsh plugin")
         self._scores = np.asarray(self.kl_divergences)
         return self._scores

@@ -28,11 +28,11 @@ def apply_augly(image: Image.Image) -> torch.Tensor:
     image as a tensor. It is used for the ALLS HCM for the augmentation
 
     Args:
-      image: The input image that needs to be augmented.
+      image (Image.Image): The input image that needs to be augmented.
 
     Returns:
-      an augmented tensor image. The image is being transformed using a list of augmentations and then
-    converted to a tensor using PyTorch's `transforms.ToTensor()` function.
+        torch.Tensor: An augmented tensor image. The image is being transformed using a list of augmentations and then
+        converted to a tensor using PyTorch's `transforms.ToTensor()` function.
     """
 
     AUGMENTATIONS = [
@@ -50,20 +50,20 @@ def apply_augly(image: Image.Image) -> torch.Tensor:
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def kl_divergence(
     p: Union[np.ndarray, torch.Tensor], q: Union[np.ndarray, torch.Tensor]
-) -> Union[np.ndarray, torch.Tensor, List]:
+) -> Union[np.ndarray, torch.Tensor]:
     """
     The function calculates the Kullback-Leibler divergence between two probability distributions.
 
     Args:
-      p: The variable `p` represents a probability distribution. It could be a tensor or a numpy array
-    containing probabilities of different events.
-      q: The parameter q is a probability distribution that we are comparing to another probability
-    distribution p using the Kullback-Leibler (KL) divergence formula. KL divergence measures the
-    difference between two probability distributions.
+        p (Union[np.ndarray, torch.Tensor]): The variable `p` represents a probability distribution. It could be a tensor or a numpy array
+            containing probabilities of different events.
+        q (Union[np.ndarray, torch.Tensor]): The parameter q is a probability distribution that we are comparing to another probability
+            distribution p using the Kullback-Leibler (KL) divergence formula. KL divergence measures the
+            difference between two probability distributions.
 
     Returns:
-      The function `kl_divergence` returns the Kullback-Leibler divergence between two probability
-    distributions `p` and `q`.
+        (Union[np.ndarray, torch.Tensor]): The function `kl_divergence` returns the Kullback-Leibler divergence between two probability
+            distributions `p` and `q`.
     """
     return (p * (p / q).log()).sum(dim=-1)
 
@@ -78,13 +78,13 @@ def get_intermediate_outputs(
     probabilities, and indices of the intermediate outputs of the network on the given data.
 
     Args:
-        net: a PyTorch neural network model
-        dataloader: A PyTorch DataLoader object that provides batches of data to the model for inference
+        net (nn.Module): a PyTorch neural network model
+        dataloader (DataLoader): A PyTorch DataLoader object that provides batches of data to the model for inference
     or evaluation.
-        device: The device on which the computation is being performed, such as "cpu" or "cuda".
+        device (Union[str, torch.device] ): The device on which the computation is being performed, such as "cpu" or "cuda".
 
     Returns:
-        four tensors: logits, targets, probs, and indices.
+        (Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]): A tuple of four tensors: logits, targets, probs, and indices.
     """
     logits_array = []
     targets_array = []
@@ -110,8 +110,14 @@ def get_intermediate_outputs(
 @validate_arguments
 def get_json_serializable_args(args: Dict) -> Dict:
     """
-    This function should take the args for a plugin and makes them serializable with json.dumps.
-    Currently it only handles pathlib.Path -> str.
+    This function should take the args for a plugin and makes them serializable with json.
+    Currently it only handles pathlib.Path and DataHandler objects.
+
+    Args:
+        args (Dict): A dictionary of args to be made serializable.
+
+    Returns:
+        Dict: A dictionary of the same args, but now json serializable.
     """
     serializable_args = deepcopy(args)
     for k, v in serializable_args.items():
@@ -124,6 +130,16 @@ def get_json_serializable_args(args: Dict) -> Dict:
 
 @validate_arguments
 def get_all_args_hash(all_args: dict) -> str:
+    """
+    This function takes all the args for a plugin and returns a hash of them. It is used in the
+    cacheing system to determine if a plugin has already been run with the same args.
+
+    Args:
+        all_args (dict): A dictionary of all the args for a plugin.
+
+    Returns:
+        str: A hash of the args.
+    """
     all_args_hash = ""
     if len(all_args) > 0:
         if "self" in all_args:
@@ -138,6 +154,15 @@ def get_all_args_hash(all_args: dict) -> str:
 
 @validate_arguments
 def load_update_values_from_cache(path: Union[str, Path]) -> Any:
+    """
+    This function loads the update values from the cache.
+
+    Args:
+        path (Union[str, Path]): The path to the cache file.
+
+    Returns:
+        Any: The cached values required for the plugin _update() call.
+    """
     if isinstance(path, str):
         path = Path(path)
     with open(path.resolve(), "rb") as f:
@@ -145,7 +170,17 @@ def load_update_values_from_cache(path: Union[str, Path]) -> Any:
 
 
 @validate_arguments
-def cache_update_values(intermediates: List[Any], path: Union[str, Path]) -> Any:
+def cache_update_values(update_values: List[Any], path: Union[str, Path]) -> Any:
+    """
+    This function caches the update values required for the plugin _update() call.
+
+    Args:
+        update_values (List[Any]): The values required for the plugin _update() call.
+        path (Union[str, Path]): The path to the cache file.
+
+    Returns:
+        Any: The cached values required for the plugin _update() call.
+    """
     if isinstance(path, str):
         path = Path(path)
     ppath = path.absolute().parent
@@ -154,13 +189,26 @@ def cache_update_values(intermediates: List[Any], path: Union[str, Path]) -> Any
         ppath.mkdir(parents=True, exist_ok=True)
 
     with open(path.resolve(), "wb") as f:
-        return cloudpickle.dump(intermediates, f)
+        return cloudpickle.dump(update_values, f)
 
 
 # Used in "GraNd" plugin to migrate from old functorch implementation to torch>=2.0
 def make_functional_with_buffers(
     mod: nn.Module, disable_autograd_tracking: bool = False
 ) -> Tuple[Callable, Any, Tuple]:
+    """
+    This function takes a PyTorch module and returns a functional version of it, along with the buffers and parameters
+    of the module. This is a workaround for the fact that when functorch was brought into PyTorch 2.0 it no longer supported
+    functional modules with buffers. This function is used in the "GraNd" plugin to migrate from the old functorch
+    implementation to the new PyTorch implementation.
+
+    Args:
+        mod (nn.Module): A PyTorch module.
+        disable_autograd_tracking (bool, optional): Whether to disable autograd tracking. Defaults to False.
+
+    Returns:
+        Tuple[Callable, Any, Tuple]: A tuple of the functional module, the parameters, and the buffers,.
+    """
     params_dict = dict(mod.named_parameters())
     params_names = params_dict.keys()
     params_values = tuple(params_dict.values())

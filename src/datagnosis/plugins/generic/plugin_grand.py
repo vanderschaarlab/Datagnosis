@@ -16,11 +16,7 @@ from datagnosis.plugins.utils import make_functional_with_buffers
 from datagnosis.utils.constants import DEVICE
 
 
-# This is a class that computes scores for GraNd
 class GRANDPlugin(Plugin):
-    # Based on: https://github.com/BlackHC/pytorch_datadiet
-    # Original jax: https://github.com/mansheej/data_diet
-    # https://arxiv.org/abs/2107.07075
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
@@ -34,6 +30,25 @@ class GRANDPlugin(Plugin):
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
     ):
+        """
+        This is a class that computes scores for GraNd
+
+        Based on:
+            https://github.com/BlackHC/pytorch_datadiet
+            Original jax: https://github.com/mansheej/data_diet
+            https://arxiv.org/abs/2107.07075
+
+        Args:
+
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+        """
         super().__init__(
             model=model,
             criterion=criterion,
@@ -50,25 +65,43 @@ class GRANDPlugin(Plugin):
 
     @staticmethod
     def name() -> str:
+        """
+        Returns:
+            str: The name of the plugin.
+        """
         return "grand"
 
     @staticmethod
     def long_name() -> str:
+        """
+        Returns:
+            str: The long name of the plugin.
+        """
         return "Gradient Normed (GraNd)"
 
     @staticmethod
     def type() -> str:
-        """The type of the plugin."""
+        """
+        Returns:
+            str: The type of the plugin.
+        """
         return "generic"
 
     @staticmethod
     def hard_direction() -> str:
+        """
+        Returns:
+            str: The direction of hardness for the plugin, i.e. whether high or low scores indicate hardness.
+        """
         return "high"
 
     @staticmethod
     def score_description() -> str:
-        return """GraNd measures the gradient norm to characterize data.
-"""
+        """
+        Returns:
+            str: A description of the score.
+        """
+        return """GraNd measures the gradient norm to characterize data."""
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def _updates(
@@ -76,11 +109,30 @@ class GRANDPlugin(Plugin):
         net: torch.nn.Module,
         device: Union[str, torch.device] = DEVICE,
     ) -> None:
+        """
+        An internal method to update the plugin's internal state.
+
+        Args:
+            net (torch.nn.Module): The model to update the plugin's internal state with.
+            device (Union[str, torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+        """
         self.net = net
         self.device = device
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def compute_scores(self, recompute: bool = False) -> np.ndarray:
+        """
+        A method to compute the GraNd scores for the plugin.
+
+        Args:
+            recompute (bool, optional): A flag to indicate whether to recompute the scores. Defaults to False.
+
+        Raises:
+            ValueError: raises if the plugin has not been fit yet.
+
+        Returns:
+            np.ndarray: The GraNd scores.
+        """
         if not self.has_been_fit:
             raise ValueError("Plugin has not been fit yet.")
         if not recompute and self._scores is not None:

@@ -13,7 +13,6 @@ from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.utils.constants import DEVICE
 
 
-# This is a class that computes scores for Data-IQ and Data Maps
 class DataMapsPlugin(Plugin):
     # Based on: https://github.com/seedatnabeel/Data-IQ
     # Data Maps: https://arxiv.org/abs/2009.10795
@@ -29,8 +28,25 @@ class DataMapsPlugin(Plugin):
         num_classes: int,
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
-        requires_intermediate: bool = False,
     ):
+        """
+        This is a class that computes scores for Data Maps
+
+        Based on:
+            https://github.com/seedatnabeel/Data-IQ
+            https://arxiv.org/abs/2210.13043
+
+        Args:
+
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+        """
         super().__init__(
             model=model,
             criterion=criterion,
@@ -40,29 +56,49 @@ class DataMapsPlugin(Plugin):
             epochs=epochs,
             num_classes=num_classes,
             logging_interval=logging_interval,
+            requires_intermediate=False,
         )
         self.update_point: str = "per-epoch"
         log.debug("DataMapsPlugin initialized")
 
     @staticmethod
     def name() -> str:
+        """
+        Returns:
+            str: The name of the plugin.
+        """
         return "data_maps"
 
     @staticmethod
     def long_name() -> str:
+        """
+        Returns:
+            str: The long name of the plugin.
+        """
         return "Data Maps"
 
     @staticmethod
     def type() -> str:
-        """The type of the plugin."""
+        """
+        Returns:
+            str: The type of the plugin.
+        """
         return "generic"
 
     @staticmethod
     def hard_direction() -> str:
+        """
+        Returns:
+            str: The direction of hardness for the plugin, i.e. whether high or low scores indicate hardness.
+        """
         return "low"
 
     @staticmethod
     def score_description() -> str:
+        """
+        Returns:
+            str: A description of the score.
+        """
         return """Compute scores returns two scores for this data_maps plugin. The first is the Epistemic
 Uncertainty otherwise known as Variability and the second is the Confidence. High Epistemic
 Uncertainty scores define ambiguous data points. High confidence scores define data points
@@ -76,6 +112,14 @@ misclassified (or hard to classify) by the model.
         net: torch.nn.Module,
         device: Union[torch.device, str] = DEVICE,
     ) -> None:
+        """
+        An internal method to update the plugin's internal state. This method is called during the fit() method.
+        It also provides a data_eval attribute to the plugin that is used to compute scores.
+
+        Args:
+            net (torch.nn.Module): The model to update the plugin's internal state with.
+            device (Union[torch.device, str], optional): The device to use for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+        """
         self.data_eval = DataIQ_MAPS_Torch(
             dataloader=self.dataloader, sparse_labels=True
         )
@@ -83,6 +127,18 @@ misclassified (or hard to classify) by the model.
 
     @validate_arguments
     def compute_scores(self, recompute: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        A method to compute scores for the plugin. This method is called during the score() method.
+
+        Args:
+            recompute (bool, optional): A flag to indicate whether or not to recompute scores from scratch. Defaults to False.
+
+        Raises:
+            ValueError: raises a ValueError if the plugin has not been fit yet.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Tuple of two numpy arrays. The first is the Confidence and the second is the Epistemic Uncertainty otherwise known as Variability.
+        """
         if not self.has_been_fit:
             raise ValueError("Plugin has not been fit yet.")
         if not recompute and self._scores is not None:

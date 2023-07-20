@@ -1,4 +1,3 @@
-# import Standard
 # stdlib
 import importlib.util
 import inspect
@@ -20,7 +19,6 @@ import torch
 from pydantic import validate_arguments
 
 # datagnosis absolute
-# absolute imports
 import datagnosis.logger as log
 import datagnosis.plugins.core.utils as utils_core
 import datagnosis.plugins.utils as utils
@@ -45,6 +43,33 @@ class Plugin(metaclass=ABCMeta):
         reproducible: bool = True,
         requires_intermediate: bool = False,
     ):
+        """
+        This is the base class for all plugins. It is an abstract class and should not be instantiated directly.
+        In order to create a new plugin, you should inherit from this class and implement the abstract methods, which
+        are listed below.
+
+        required methods:
+            - name
+            - long_name
+            - type
+            - hard_direction
+            - score_description
+            - _updates
+            - compute_scores
+
+
+        Args:
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+            reproducible (bool, optional): A flag to indicate whether or not to fix the seed for reproducibility. Defaults to True.
+            requires_intermediate (bool, optional): A flag to indicate whether or not the plugin requires intermediate data. This is dependent on the specific requirements of the plugin being implemented. Defaults to False.
+        """
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
@@ -112,6 +137,17 @@ class Plugin(metaclass=ABCMeta):
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        """
+        Fit the plugin model.
+
+        Args:
+            datahandler (DataHandler): The `datagnosis.plugins.core.datahandler.DataHandler` object that contains the data to be used for fitting.
+            use_caches_if_exist (bool, optional): A flag to indicate whether or not to use cached data if it exists. Defaults to True.
+            workspace (Union[Path, str], optional): A path to the workspace directory. Defaults to Path("workspace/").
+
+        Raises:
+            RuntimeError: Raises a RuntimeError if the plugin's `fit` method has already been called.
+        """
         log.debug(f"self.has_been_fit {self.has_been_fit}")
         if self.has_been_fit is True:
             log.critical(f"Plugin {self.name()} has already been fit.")
@@ -275,6 +311,12 @@ class Plugin(metaclass=ABCMeta):
         log.debug("Plugin fit complete and scores computed.")
 
     def _safe_update(self, **kwargs: Any) -> None:
+        """
+        A wrapper around the update method that makes sure that the required arguments, and only the required arguments are provided.
+
+        Raises:
+            ValueError: Raises a ValueError if the required arguments are not provided.
+        """
         if all([kwa in kwargs for kwa in self._updates_params]):
             filtered_kwargs = {
                 k: v for k, v in kwargs.items() if k in self._updates_params
@@ -294,8 +336,21 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         threshold: Optional[float],
         threshold_range: Optional[Tuple[Union[float, int], Union[float, int]]],
         hardness: str,
-    ) -> np.ndarray:
-        """Extract datapoints from the plugin model by thresholding the scores"""
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Internal function to extract datapoints from the plugin model by applying a threshold or range to the scores. Called by extract_datapoints.
+
+        Args:
+            threshold (Optional[float]): The threshold to apply to the scores. Must be provided if threshold_range is None.
+            threshold_range (Optional[Tuple[Union[float, int], Union[float, int]]]): The range of thresholds to apply to the scores. Must be provided if threshold is None.
+            hardness (str): Flag to indicate whether to extract hard or easy data points.
+
+        Raises:
+            ValueError: raises a ValueError if the plugin has not been fit yet.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: A tuple of the extracted datapoints and the scores of the extracted datapoints.
+        """
         if self._scores is None:
             raise ValueError(
                 "You must fit the plugin before extracting datapoints by threshold"
@@ -345,8 +400,18 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         n: int,
         hardness: str = "hard",
         sort: bool = True,
-    ) -> np.ndarray:
-        """Extract datapoints from the plugin model by selecting the top n scores"""
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Internal function to extract datapoints from the plugin model by  selecting the top n scores. Called by extract_datapoints.
+
+
+        Args:
+            n (int): The number of datapoints to extract.
+            hardness (str, optional): Flag to indicate whether to extract hard or easy data points. Defaults to "hard".
+            sort (bool, optional): Flag to indicate whether to sort the extracted datapoints. Defaults to True.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: A tuple of the extracted datapoints and the scores of the extracted datapoints.
+        """
         extraction_scores = deepcopy(self._scores)
         if isinstance(extraction_scores, tuple):
             extraction_scores = extraction_scores[0]
@@ -367,7 +432,17 @@ Missing required arguments for {self.update_point} update. Required arguments ar
             extraction_scores[extracted],
         )
 
-    def _extract_datapoints_by_index(self, indices: List[int]) -> np.ndarray:
+    def _extract_datapoints_by_index(
+        self, indices: List[int]
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Internal function to extract datapoints from the plugin model by selecting datapoints by index. Called by extract_datapoints.
+
+        Args:
+            indices (List[int]): A list of indices to extract.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: A tuple of the extracted datapoints and the scores of the extracted datapoints.
+        """
         extraction_scores = deepcopy(self._scores)
         if isinstance(extraction_scores, tuple):
             extraction_scores = extraction_scores[0]
@@ -377,15 +452,31 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         self,
         method: Literal["threshold", "top_n", "index"] = "threshold",
         hardness: Literal["hard", "easy"] = "hard",
-        threshold_range: Optional[Tuple[float, float]] = None,
         threshold: Optional[float] = None,
+        threshold_range: Optional[Tuple[float, float]] = None,
         n: Optional[int] = None,
         indices: Optional[List[int]] = None,
         sort: bool = True,  # Only used for top_n
-    ) -> np.ndarray:
-        """
-        Extract datapoints from the plugin model
-        datapoints returned in the format Features, Labels, Indices, scores
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Extracts datapoints from the plugin model by applying a threshold or range to the scores, selecting the top n scores, or selecting datapoints by index.
+
+        Args:
+            method (Literal[threshold, top_n, index], optional): The method to use to extract datapoints. Defaults to "threshold".
+            hardness (Literal[hard, easy], optional): Flag to indicate whether to extract hard or easy data points. Defaults to "hard".
+            threshold (Optional[float], optional): The threshold to apply to the scores. Must be provided if the given method is "threshold" and threshold_range is None. Defaults to None.
+            threshold_range (Optional[Tuple[float, float]], optional): The range of thresholds to apply to the scores. Must be provided if the given method is "threshold" and the value passed to threshold is None. Defaults to None.
+            n (Optional[int], optional): The number of datapoints to extract. Must be provided if the given method is "top_n". Defaults to None.
+            indices (Optional[List[int]], optional): The indices of the datapoints to extract. Must be provided if the given method is "index". Defaults to None.
+            sort (bool, optional): Flag to indicate whether to sort the extracted datapoints. Defaults to True.
+
+        Raises:
+            ValueError: raised if the given method is not one of "threshold", "top_n", or "index".
+            ValueError: raised if the given method is "threshold" but neither threshold nor threshold_range is provided.
+            ValueError: raised if the given method is "top_n" but n is not provided.
+            ValueError: raised if the given method is "index" but a list of indices is not provided.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: The extracted datapoints and the scores of the extracted datapoints. Datapoints returned in the format ((Features, Labels, Indices), scores)
         """
         if method == "threshold":
             if n is not None:
@@ -437,7 +528,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
             return self._extract_datapoints_by_index(indices)
         else:
             raise ValueError(
-                f"Unknown method {method}. Must be one of 'threshold', 'top_n'"
+                f"Unknown method {method}. Must be one of 'threshold', 'top_n', or 'index'."
             )
 
     @abstractmethod
@@ -447,10 +538,20 @@ Missing required arguments for {self.update_point} update. Required arguments ar
 
     @abstractmethod
     def compute_scores(self) -> None:
+        """Compute the scores for the plugin model"""
         ...
 
     @property
     def scores(self) -> np.ndarray:
+        """The scores for the plugin model
+
+        Raises:
+            ValueError: raised if the plugin has not been fit.
+            ValueError: raised if the scores have not been computed.
+
+        Returns:
+            np.ndarray: The scores for the plugin model
+        """
         if self.has_been_fit:
             if self._scores is not None:
                 return self._scores
@@ -472,6 +573,17 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         plot_type: Literal["scatter", "dist"] = "dist",
         **kwargs: Any,
     ) -> None:
+        """_summary_
+
+        Args:
+            axis (Optional[int], optional): The axis to plot. If None, plot a higher dimentional plot. Defaults to None.
+            show (bool, optional): Flag to indicate whether to show the plot. Defaults to True.
+            plot_type (Literal[scatter, dist], optional): The type of plot to show. Can be either "scatter" or "dist". Defaults to "dist".
+
+        Raises:
+            ValueError: raised if the scores have not been computed.
+            ValueError: raised if scores have more than 2 dimensions. You must specify which axis to plot.
+        """
         """Plot the scores"""
         log.info(f"Plotting {self.name()} scores")
         if self._scores is None:
@@ -566,31 +678,31 @@ class PluginLoader:
         log.debug(f"loading {module_name} plugin")
         failed = False
         for retry in range(2):
-            # try:
-            if module_name in sys.modules:
-                mod = sys.modules[module_name]
-            else:
-                spec = importlib.util.spec_from_file_location(module_name, plugin)
-                if spec is None:
-                    raise RuntimeError("invalid spec")
-                if not isinstance(spec.loader, Loader):
-                    raise RuntimeError("invalid plugin type")
+            try:
+                if module_name in sys.modules:
+                    mod = sys.modules[module_name]
+                else:
+                    spec = importlib.util.spec_from_file_location(module_name, plugin)
+                    if spec is None:
+                        raise RuntimeError("invalid spec")
+                    if not isinstance(spec.loader, Loader):
+                        raise RuntimeError("invalid plugin type")
 
-                mod = importlib.util.module_from_spec(spec)
-                if module_name not in sys.modules:
-                    sys.modules[module_name] = mod
+                    mod = importlib.util.module_from_spec(spec)
+                    if module_name not in sys.modules:
+                        sys.modules[module_name] = mod
 
-                spec.loader.exec_module(mod)
-            cls = mod.plugin
-            if cls is None:
-                log.critical(f"module disabled: {plugin_name}")
-                return None
+                    spec.loader.exec_module(mod)
+                cls = mod.plugin
+                if cls is None:
+                    log.critical(f"module disabled: {plugin_name}")
+                    return None
 
-            failed = False
-            break
-            # except BaseException as e:
-            #     log.critical(f"load failed: {e}")
-            #     failed = True
+                failed = False
+                break
+            except BaseException as e:
+                log.critical(f"load failed: {e}")
+                failed = True
 
         if failed:
             log.critical(f"module {name} load failed")
@@ -642,12 +754,16 @@ class PluginLoader:
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def get(self, name: str, *args: Any, **kwargs: Any) -> Any:
         """Create a new object from a plugin.
+
         Args:
-            name: str. The name of the plugin
-            &args, **kwargs. Plugin specific arguments
+            name (str): The name of the plugin
+
+        Raises:
+            ValueError: raises if the plugin doesn't exist
+            ValueError: raises if the plugin cannot be loaded
 
         Returns:
-            The new object
+            Any: The new object
         """
         if name not in self._plugins and name not in self._available_plugins:
             raise ValueError(f"Plugin {name} doesn't exist.")
@@ -663,12 +779,18 @@ class PluginLoader:
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def get_type(self, name: str) -> Type:
-        """Get the class type of a plugin.
+        """
+        Get the class type of a plugin.
+
         Args:
-            name: str. The name of the plugin
+            name (str): The name of the plugin
+
+        Raises:
+            ValueError: raises if the plugin doesn't exist
+            ValueError: raises if the plugin cannot be loaded
 
         Returns:
-            The class of the plugin
+            Type: The class of the plugin
         """
         if name not in self._plugins and name not in self._available_plugins:
             raise ValueError(f"Plugin {name} doesn't exist.")
@@ -690,7 +812,7 @@ class PluginLoader:
         """The number of available plugins."""
         return len(self.list())
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_arguments
     def __getitem__(self, key: str) -> Any:
         return self.get(key)
 

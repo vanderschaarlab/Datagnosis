@@ -1,6 +1,6 @@
-<h2 align="center">
+<h1 align="center">
   Datagnosis
-</h2>
+</h1>
 
 <h4 align="center">
     A Data-Centric AI library for measuring hardness categorization.
@@ -28,14 +28,14 @@
 
 
 ## Features:
-- :key: Easy to extend pluginable architecture.
-- :cyclone: Several state-of-the-art hardness characterisation methods.
-<!-- - :book: [Read the docs !](https://datagnosis.readthedocs.io/) -->
-<!-- - :airplane: [Checkout the tutorials!](https://github.com/vanderschaarlab/datagnosis#-tutorials) -->
+- 🔑 Easy to extend pluginable architecture.
+- 🌀 Several state-of-the-art hardness characterisation methods.
+<!-- - 📚 [Read the docs !](https://datagnosis.readthedocs.io/) -->
+<!-- - ✈️ [Checkout the tutorials!](https://github.com/vanderschaarlab/datagnosis#-tutorials) -->
 
 *Please note: datagnosis does not handle missing data and so these values must be imputed first [HyperImpute](https://github.com/vanderschaarlab/hyperimpute) can be used to do this.*
 
-## :rocket: Installation
+## 🚀 Installation
 
 The library can be installed from PyPI using
 ```bash
@@ -51,10 +51,46 @@ Other library extensions:
  pip install datagnosis[testing]
 ```
 
-## :boom: Sample Usage
+## 💥 Sample Usage
 
-### Generic data
+```
+# Load iris dataset from sklearn and create DataHandler object
+from sklearn.datasets import load_iris
+from datagnosis.plugins.core.datahandler import DataHandler
+X, y = load_iris(return_X_y=True, as_frame=True)
+datahander = DataHandler(X, y, batch_size=32)
 
+# Create model an parameters
+from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
+import torch
+
+model = SimpleMLP()
+
+# creating our optimizer and loss function object
+learning_rate = 0.01
+criterion = torch.nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
+
+
+# Get a plugin and fit it
+hcm = Plugins().get(
+    "vog",
+    model=model,
+    criterion=criterion,
+    optimizer=optimizer,
+    lr=learning_rate,
+    epochs=10,
+    num_classes=3,
+    logging_interval=1,
+)
+hcm.fit(
+    datahandler=datahander,
+    use_caches_if_exist=True,
+)
+
+# Plot the resulting scores
+hcm.plot_scores(axis=1, plot_type="scatter")
+```
 
 ## 🔑 Methods
 
@@ -77,7 +113,7 @@ Other library extensions:
 *Generic type plugins can be used for tabular or image data. Image type plugins only work for images.*
 
 
-## :hammer: Tests
+## 🔨 Tests
 
 Install the testing dependencies using
 ```bash
@@ -85,19 +121,19 @@ pip install .[testing]
 ```
 The tests can be executed using
 ```bash
-pytest -vsx
+pytest -vvvsx tests/ --durations=50
 ```
 
-# Contributing to datagnosis
+## Contributing to datagnosis
 
 We want to make contributing to datagnosis is as easy and transparent as possible. We hope to collaborate with as many people as we can.
 
 
-## Development installation
+### Development installation
 
 First create a new environment. It is recommended that you use conda. This can be done as follows:
 ```bash
-conda create -n your-datagnosis-env python=3.9
+conda create -n your-datagnosis-env python=3.11
 conda activate your-datagnosis-env
 ```
 *Python versions , 3.8, 3.9, 3.10, 3.11 are all compatible, but it is best to use the most up to date version you can, as some models may not support older python versions.*
@@ -117,9 +153,9 @@ pre-commit run --all
 This checks that you are set up properly to contribute, such that you will match the code style in the rest of the project. This is covered in more detail below.
 
 
-## Our Development Process
+### ⌨️ Our Development Process
 
-### Code Style
+#### 🏂 Code Style
 
 We believe that having a consistent code style is incredibly important. Therefore datagnosis imposes certain rules on the code that is contributed and the automated tests will not pass, if the style is not adhered to. These tests passing is a requirement for a contribution being merged. However, we make adhering to this code style as simple as possible. First, all the libraries required to produce code that is compatible with datagnosis's Code Style are installed in the step above when you set up the development environment. Secondly, these libraries are all triggered by pre-commit, so once you are set-up, you don't need to do anything. When you run `git commit`, any simple changes to enforce the style will run automatically and other required changes are explained in the stdout for you to go through and fix.
 
@@ -128,25 +164,12 @@ datagnosis uses the [black](https://github.com/ambv/black) and [flake8](https://
 Also, datagnosis uses [isort](https://github.com/timothycrosley/isort) to sort imports alphabetically and separate into sections.
 
 
-#### Type Hints
+#### ❕Type Hints
 
 datagnosis is fully typed using python 3.7+ [type hints](https://www.python.org/dev/peps/pep-0484/). This is enforced for contributions by [mypy](https://github.com/python/mypy), which is a static type-checker.
 
 
-#### Tests
-
-To run the tests, you can either use `pytest` (again, installed with the testing extra above).
-The following testing command is good for checking your code, as it skips the tests that take a long time to run.
-```bash
-pytest -vvvsx -m "not slow" --durations=50
-```
-
-But the full test suite can be run with the following command.
-```bash
-pytest -vvvs  --durations=50
-```
-
-## Pull Requests
+## ↩️ Pull Requests
 We actively welcome your pull requests.
 
 1. Fork the repo and create your branch from `main`.
@@ -156,13 +179,13 @@ We actively welcome your pull requests.
 5. Make sure your code passes the pre-commit, this will be required in order to commit and push, if you have properly installed pre-commit, which is included in the testing extra.
 
 
-## Issues
+## 🔶 Issues
 
 We use GitHub issues to track public bugs. Please ensure your description is
 clear and has sufficient instructions to be able to reproduce the issue.
 
 
-## License
+## 📜 License
 
 By contributing to datagnosis, you agree that your contributions will be licensed
 under the LICENSE file in the root directory of this source tree. You should therefore, make sure that if you have introduced any dependencies that they also are covered by a license that allows the code to be used by the project and is compatible with the license in the root directory of this project.

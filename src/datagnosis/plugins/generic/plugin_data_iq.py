@@ -13,10 +13,7 @@ from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.utils.constants import DEVICE
 
 
-# This is a class that computes scores for Data-IQ and Data Maps
 class DataIQPlugin(Plugin):
-    # Based on: https://github.com/seedatnabeel/Data-IQ
-    # Data-IQ: https://arxiv.org/abs/2210.13043
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
@@ -30,6 +27,24 @@ class DataIQPlugin(Plugin):
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
     ):
+        """
+        This is a class that computes scores for Data-IQ.
+
+        Based on:
+            https://github.com/seedatnabeel/Data-IQ
+            https://arxiv.org/abs/2210.13043
+
+        Args:
+
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+        """
         super().__init__(
             model=model,
             criterion=criterion,
@@ -46,23 +61,42 @@ class DataIQPlugin(Plugin):
 
     @staticmethod
     def name() -> str:
+        """
+        Returns:
+            str: The name of the plugin.
+        """
         return "data_iq"
 
     @staticmethod
     def long_name() -> str:
+        """
+        Returns:
+            str: The long name of the plugin.
+        """
         return "Data-IQ"
 
     @staticmethod
     def type() -> str:
-        """The type of the plugin."""
+        """
+        Returns:
+            str: The type of the plugin.
+        """
         return "generic"
 
     @staticmethod
     def hard_direction() -> str:
+        """
+        Returns:
+            str: The direction of hardness for the plugin, i.e. whether high or low scores indicate hardness.
+        """
         return "low"
 
     @staticmethod
     def score_description() -> str:
+        """
+        Returns:
+            str: A description of the score.
+        """
         return """Compute scores returns two scores for this data_iq plugin. The first is the Aleatoric
 Uncertainty and the second is the Confidence. Aleatoric uncertainty permits a principled characterization
 and then subsequent stratification of data examples into three distinct subgroups (Easy, Ambiguous, Hard).
@@ -75,6 +109,14 @@ define the category `Easy`. Low Confidence scores define `Hard`. High Aleatoric 
         net: torch.nn.Module,
         device: Union[torch.device, str] = DEVICE,
     ) -> None:
+        """
+        An internal method to update the plugin's internal state. This method is called during the fit() method.
+        It also provides a data_eval attribute to the plugin that is used to compute scores.
+
+        Args:
+            net (torch.nn.Module): The model to update the plugin's internal state with.
+            device (Union[torch.device, str], optional): The device to use for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+        """
         self.data_eval = DataIQ_MAPS_Torch(
             dataloader=self.dataloader, sparse_labels=True
         )
@@ -82,6 +124,18 @@ define the category `Easy`. Low Confidence scores define `Hard`. High Aleatoric 
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def compute_scores(self, recompute: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        A method to compute scores for the plugin. This method is called during the score() method.
+
+        Args:
+            recompute (bool, optional): A flag to indicate whether or not to recompute scores from scratch. Defaults to False.
+
+        Raises:
+            ValueError: raises a ValueError if the plugin has not been fit yet.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: A tuple of two numpy arrays. The first is the Confidence score and the second is the Aleatoric Uncertainty score.
+        """
         if not self.has_been_fit:
             raise ValueError("Plugin has not been fit yet.")
         if not recompute and self._scores is not None:

@@ -25,10 +25,8 @@ class DataIQ_MAPS_Torch:
         and y. It also stores the boolean value of sparse_labels in the class variable _sparse_labels
 
         Args:
-          X: the input data
-          y: the true labels
-          sparse_labels (bool): boolean to identify if labels are one-hot encoded or not. If not=True.
-        Defaults to False
+            dataloader (DataLoader): The input dataloader
+            sparse_labels (bool, optional): boolean to identify if labels are one-hot encoded or not. If not=True. Defaults to False.
         """
         self.dataloader = dataloader
         self._sparse_labels = sparse_labels
@@ -53,8 +51,8 @@ class DataIQ_MAPS_Torch:
         We do this for every sample in the dataset, and for every epoch.
 
         Args:
-          net: the neural network
-          device: the device to use for the computation. Defaults to cpu
+            net (nn.Module): the neural network
+            device (Union[str, torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
         """
 
         # Compute both the gold label and true label probabilities over all samples in the dataset
@@ -154,7 +152,7 @@ class DataIQ_MAPS_Torch:
     def gold_labels_probabilities(self) -> np.ndarray:
         """
         Returns:
-            Gold label predicted probabilities of the "correct" label: np.array(n_samples, n_epochs)
+            np.ndarray: Gold label predicted probabilities of the "correct" label: np.array(n_samples, n_epochs)
         """
         return self._gold_labels_probabilities
 

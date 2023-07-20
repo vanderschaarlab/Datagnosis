@@ -22,6 +22,16 @@ class Net(nn.Module):
         self.dropout2 = nn.Dropout(p=0.2)
 
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
+        """
+        Forward pass of the neural network
+
+        Args:
+            x (torch.Tensor): The input tensor
+            embed (bool, optional): Flag to identify if the output is an embedding or not. Defaults to False.
+
+        Returns:
+            torch.Tensor: The output tensor
+        """
         x = self.pool(torch.relu(self.conv1(x)))
         x = self.pool(torch.relu(self.conv2(x)))
         x = x.view(-1, 16 * 4 * 4)
@@ -50,6 +60,16 @@ class LeNet(nn.Module):
         self.dropout2 = nn.Dropout(p=0.2)
 
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
+        """
+        Forward pass of the neural network
+
+        Args:
+            x (torch.Tensor): The input tensor
+            embed (bool, optional): Flag to identify if the output is an embedding or not. Defaults to False.
+
+        Returns:
+            torch.Tensor: The output tensor
+        """
         x = F.relu(self.conv1(x))
         x = self.dropout1(x)
         x = F.max_pool2d(x, 2)
@@ -79,6 +99,16 @@ class LeNetMNIST(nn.Module):
         self.dropout2 = nn.Dropout(p=0.2)
 
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
+        """
+        Forward pass of the neural network
+
+        Args:
+            x (torch.Tensor): The input tensor
+            embed (bool, optional): Flag to identify if the output is an embedding or not. Defaults to False.
+
+        Returns:
+            torch.Tensor: The output tensor
+        """
         x = F.relu(self.conv1(x))
         x = self.dropout1(x)
         x = F.max_pool2d(x, 2, 2)
@@ -129,6 +159,15 @@ class BasicBlock(nn.Module):
             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the BasicBlock neural network
+
+        Args:
+            x (torch.Tensor): The input tensor
+
+        Returns:
+            torch.Tensor: The output tensor
+        """
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
         out += self.shortcut(x)
@@ -166,6 +205,15 @@ class Bottleneck(nn.Module):
             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the BasicBlock neural network
+
+        Args:
+            x (torch.Tensor): The input tensor
+
+        Returns:
+            torch.Tensor: The output tensor
+        """
         out = F.relu(self.bn1(self.conv1(x)))
         out = F.relu(self.bn2(self.conv2(out)))
         out = self.bn3(self.conv3(out))
@@ -197,6 +245,18 @@ class ResNetMNIST(nn.Module):
     def _make_layer(
         self, block: nn.Module, planes: int, num_blocks: int, stride: int
     ) -> nn.Module:
+        """
+        Make a layer of the ResNet model
+
+        Args:
+            block (nn.Module): The block to be used to make the layer of the ResNet model
+            planes (int): The number of planes
+            num_blocks (int): The number of blocks
+            stride (int): The stride
+
+        Returns:
+            nn.Module: The layer of the ResNet model
+        """
         strides = [stride] + [1] * (num_blocks - 1)
         layers = []
         for stride in strides:
@@ -205,6 +265,16 @@ class ResNetMNIST(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
+        """
+        Forward pass of the neural network
+
+        Args:
+            x (torch.Tensor): The input tensor
+            embed (bool, optional): Flag to identify if the output is an embedding or not. Defaults to False.
+
+        Returns:
+            torch.Tensor: The output tensor
+        """
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
         out = self.dropout1(out)
@@ -245,6 +315,18 @@ class ResNet(nn.Module):
     def _make_layer(
         self, block: nn.Module, planes: int, num_blocks: int, stride: int
     ) -> nn.Module:
+        """
+        Make a layer of the ResNet model
+
+        Args:
+            block (nn.Module): The block to be used to make the layer of the ResNet model
+            planes (int): The number of planes
+            num_blocks (int): The number of blocks
+            stride (int): The stride
+
+        Returns:
+            nn.Module: The layer of the ResNet model
+        """
         strides = [stride] + [1] * (num_blocks - 1)
         layers = []
         for stride in strides:
@@ -253,6 +335,16 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor, embed: bool = False) -> torch.Tensor:
+        """
+        Forward pass of the neural network
+
+        Args:
+            x (torch.Tensor): The input tensor
+            embed (bool, optional): Flag to identify if the output is an embedding or not. Defaults to False.
+
+        Returns:
+            torch.Tensor: The output tensor
+        """
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
         out = self.dropout1(out)
@@ -271,8 +363,16 @@ class ResNet(nn.Module):
 
 
 def ResNet18MNIST() -> nn.Module:
+    """
+    Returns:
+        nn.Module: ResNet18 model for MNIST dataset
+    """
     return ResNetMNIST(BasicBlock, [2, 2, 2, 2])
 
 
 def ResNet18() -> nn.Module:
+    """
+    Returns:
+        nn.Module: ResNet18 model for CIFAR10 dataset
+    """
     return ResNet(BasicBlock, [2, 2, 2, 2])

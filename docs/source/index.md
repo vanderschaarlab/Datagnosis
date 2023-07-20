@@ -16,11 +16,5 @@ The repository is in alpha development and so may be less stable than some fully
 :maxdepth: 2
 
 usage
-anotherpage
+modules
 ```
-
-# Indices and tables
-
-- {ref}`genindex`
-- {ref}`modindex`
-- {ref}`search`

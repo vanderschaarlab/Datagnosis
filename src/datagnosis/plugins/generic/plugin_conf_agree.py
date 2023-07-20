@@ -112,8 +112,8 @@ ensemble of models are not collectively confident about how to classify the data
         An internal method that is called after each epoch and is used to update the plugin's internal state.
 
         Args:
-            net (torch.nn.Module): _description_
-            device (Union[torch.device, str], optional): _description_. Defaults to DEVICE.
+            net (torch.nn.Module): The model to use for the update.
+            device (Union[torch.device, str], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
         """
         net.train()
 

@@ -55,15 +55,11 @@ def kl_divergence(
     The function calculates the Kullback-Leibler divergence between two probability distributions.
 
     Args:
-        p (Union[np.ndarray, torch.Tensor]): The variable `p` represents a probability distribution. It could be a tensor or a numpy array
-            containing probabilities of different events.
-        q (Union[np.ndarray, torch.Tensor]): The parameter q is a probability distribution that we are comparing to another probability
-            distribution p using the Kullback-Leibler (KL) divergence formula. KL divergence measures the
-            difference between two probability distributions.
+        p (Union[np.ndarray, torch.Tensor]): The variable `p` represents a probability distribution. It could be a tensor or a numpy array containing probabilities of different events.
+        q (Union[np.ndarray, torch.Tensor]): The parameter q is a probability distribution that we are comparing to another probability distribution p using the Kullback-Leibler (KL) divergence formula. KL divergence measures the difference between two probability distributions.
 
     Returns:
-        (Union[np.ndarray, torch.Tensor]): The function `kl_divergence` returns the Kullback-Leibler divergence between two probability
-            distributions `p` and `q`.
+        (Union[np.ndarray, torch.Tensor]): The function `kl_divergence` returns the Kullback-Leibler divergence between two probability distributions `p` and `q`.
     """
     return (p * (p / q).log()).sum(dim=-1)
 

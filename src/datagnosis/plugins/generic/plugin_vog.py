@@ -143,8 +143,7 @@ class VOGPlugin(Plugin):
     def compute_scores(
         self, mode: str = "complete", recompute: bool = False
     ) -> np.ndarray:
-        """
-        A method that computes the Variance of Gradients scores for the plugin.
+        """A method that computes the Variance of Gradients scores for the plugin.
 
         Args:
             mode (str, optional): The mode of the scores to compute. Acceptable values include "early", "middle", "late" or "complete". Defaults to "complete".

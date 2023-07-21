@@ -12,9 +12,7 @@ from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.utils.constants import DEVICE
 
 
-# This is a class that computes scores for Forgetting scores.
 class ForgettingPlugin(Plugin):
-    # Based on: https://arxiv.org/abs/1812.05159
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
@@ -29,6 +27,22 @@ class ForgettingPlugin(Plugin):
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
     ):
+        """
+        This is a class that computes scores for forgetting plugin
+
+        Based on: https://arxiv.org/abs/1812.05159
+
+        Args:
+
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+        """
         super().__init__(
             model=model,
             criterion=criterion,
@@ -48,23 +62,42 @@ class ForgettingPlugin(Plugin):
 
     @staticmethod
     def name() -> str:
+        """
+        Returns:
+            str: The name of the plugin.
+        """
         return "forgetting"
 
     @staticmethod
     def long_name() -> str:
+        """
+        Returns:
+            str: The long name of the plugin.
+        """
         return "Forgetting"
 
     @staticmethod
     def type() -> str:
-        """The type of the plugin."""
+        """
+        Returns:
+            str: The type of the plugin.
+        """
         return "generic"
 
     @staticmethod
     def hard_direction() -> str:
+        """
+        Returns:
+            str: The direction of hardness for the plugin, i.e. whether high or low scores indicate hardness.
+        """
         return "high"
 
     @staticmethod
     def score_description() -> str:
+        """
+        Returns:
+            str: A description of the score.
+        """
         return """Forgetting scores analyze example transitions through training.
 i.e., the time a sample correctly learned at one epoch is then forgotten.
 """
@@ -76,6 +109,14 @@ i.e., the time a sample correctly learned at one epoch is then forgotten.
         targets: Union[List, torch.Tensor],
         indices: Union[List, torch.Tensor],
     ) -> None:
+        """
+        An internal method to update the plugin's internal state with the current batch of logits, targets and indices.
+
+        Args:
+            logits (Union[List, torch.Tensor]): The logits output by the model.
+            targets (Union[List, torch.Tensor]): The targets for the current batch.
+            indices (Union[List, torch.Tensor]): The indices of the current batch.
+        """
         if isinstance(logits, list):
             logits = torch.Tensor(logits)
         if isinstance(targets, list):
@@ -104,6 +145,18 @@ i.e., the time a sample correctly learned at one epoch is then forgotten.
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def compute_scores(self, recompute: bool = False) -> np.ndarray:
+        """
+        A method to compute the forgetting scores for the plugin.
+
+        Args:
+            recompute (bool, optional): A flag to indicate whether to recompute the scores. Defaults to False.
+
+        Raises:
+            ValueError: If the plugin has not been fit yet.
+
+        Returns:
+            np.ndarray: The forgetting scores.
+        """
         if not self.has_been_fit:
             raise ValueError("Plugin has not been fit yet.")
         if not recompute and self._scores is not None:

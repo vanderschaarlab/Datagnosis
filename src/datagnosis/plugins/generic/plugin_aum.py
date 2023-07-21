@@ -16,10 +16,7 @@ from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.utils.constants import DEVICE
 
 
-# This is a class that computes scores for AUM.
 class AUMPlugin(Plugin):
-    # Based on https://github.com/asappresearch/aum
-    # https://arxiv.org/abs/2001.10528
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
@@ -35,6 +32,25 @@ class AUMPlugin(Plugin):
         # specific kwargs
         save_dir: Union[Path, str] = ".",
     ):
+        """
+        This is a class that computes scores for AUM.
+
+        Based on:
+            https://github.com/asappresearch/aum
+            https://arxiv.org/abs/2001.10528
+
+        Args:
+
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+            save_dir (Union[Path, str], optional): The directory to save the AUM scores to. Defaults to ".".
+        """
         super().__init__(
             model=model,
             criterion=criterion,
@@ -55,23 +71,42 @@ class AUMPlugin(Plugin):
 
     @staticmethod
     def name() -> str:
+        """
+        Returns:
+            str: The name of the plugin.
+        """
         return "aum"
 
     @staticmethod
     def long_name() -> str:
+        """
+        Returns:
+            str: The long name of the plugin.
+        """
         return "Area Under the Margin"
 
     @staticmethod
     def type() -> str:
-        """The type of the plugin."""
+        """
+        Returns:
+            str: The type of the plugin.
+        """
         return "generic"
 
     @staticmethod
     def hard_direction() -> str:
+        """
+        Returns:
+            str: The direction of hardness for the plugin, i.e. whether high or low scores indicate hardness.
+        """
         return "low"
 
     @staticmethod
     def score_description() -> str:
+        """
+        Returns:
+            str: A description of the score.
+        """
         return """The Area Under the Margin (AUM) is a measure of the
 confidence of a model's predictions. It is defined as the area under
 the curve of the cumulative distribution function of the margin
@@ -88,6 +123,14 @@ datapoints, you should look for samples with low AUMs.
         y_batch: Union[List, torch.Tensor],
         sample_ids: Union[List, torch.Tensor],
     ) -> None:
+        """
+        An internal method to update the AUM calculator with new predictions.
+
+        Args:
+            y_pred (Union[List, torch.Tensor]): The predictions of the model.
+            y_batch (Union[List, torch.Tensor]): The ground truth labels.
+            sample_ids (Union[List, torch.Tensor]): The sample ids.
+        """
         if isinstance(y_batch, list):
             y_batch = torch.Tensor(y_batch)
         if isinstance(sample_ids, list):
@@ -98,6 +141,18 @@ datapoints, you should look for samples with low AUMs.
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def compute_scores(self, recompute: bool = False) -> np.ndarray:
+        """
+        A method to compute the AUM scores.  This method is called during the score() method.
+
+        Args:
+            recompute (bool, optional): A flag to indicate whether or not to recompute the scores. Defaults to False.
+
+        Raises:
+            ValueError: If the plugin has not been fit yet.
+
+        Returns:
+            np.ndarray: The AUM scores.
+        """
         if not self.has_been_fit:
             raise ValueError("Plugin has not been fit yet.")
         if not recompute and self._scores is not None:

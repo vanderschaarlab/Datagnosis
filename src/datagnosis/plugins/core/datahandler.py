@@ -34,6 +34,17 @@ class DataHandler(metaclass=ABCMeta):
         reproducible: bool = True,
         **kwargs: Any,
     ):
+        """
+        DataHandler is a class that handles the data for the plugins. It creates
+        dataloaders and handles the requirement for data indices to be available with
+        the IndexedDataset object.
+
+        Args:
+            X (Union[pd.DataFrame, np.ndarray, torch.Tensor]): The input data.
+            y (Union[pd.Series, np.ndarray, torch.Tensor]): The target data (aka the input labels).
+            batch_size (Optional[int], optional): The batch size of the data used to train the model with the plugin. Defaults to None.
+            reproducible (bool, optional): Flag to enable reproducible results. Defaults to True.
+        """
         if reproducible:
             enable_reproducible_results(0)
         # create X and y tesnors
@@ -77,4 +88,10 @@ class DataHandler(metaclass=ABCMeta):
         )
 
     def toJson(self) -> str:
+        """
+        Returns a JSON representation of the DataHandler object.
+
+        Returns:
+            str: A JSON representation of the DataHandler object in the form of a string.
+        """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

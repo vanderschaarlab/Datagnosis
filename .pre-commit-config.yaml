@@ -48,3 +48,4 @@ repos:
             "--install-types",
             "--non-interactive",
           ]
+        exclude: "docs/"

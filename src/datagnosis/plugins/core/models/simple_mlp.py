@@ -5,7 +5,7 @@ from torch import nn
 
 
 class SimpleMLP(nn.Module):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_arguments
     def __init__(self, input_dim: int = 4, output_dim: int = 3):
         super().__init__()
         self.input_dim = input_dim
@@ -16,6 +16,15 @@ class SimpleMLP(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        The forward pass of the model.
+
+        Args:
+            x (torch.Tensor): The input tensor.
+
+        Returns:
+            torch.Tensor: The output tensor.
+        """
         out = self.relu(self.input_layer(x))
         out = self.relu(self.hidden_layer1(out))
         out = self.output_layer(out)

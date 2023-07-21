@@ -13,9 +13,7 @@ from datagnosis.plugins.core.plugin import Plugin
 from datagnosis.utils.constants import DEVICE
 
 
-# This is a class that computes scores for Prototypicality
 class PrototypicalityPlugin(Plugin):
-    # Based on: https://arxiv.org/abs/2206.14486
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
@@ -29,6 +27,22 @@ class PrototypicalityPlugin(Plugin):
         device: Optional[torch.device] = DEVICE,
         logging_interval: int = 100,
     ):
+        """
+        This is a class that computes scores for Prototypicality
+
+        Based on: https://arxiv.org/abs/2206.14486
+
+        Args:
+
+            model (torch.nn.Module): The downstream classifier you wish to use and therefore also the model you wish to judge the hardness of characterization of data points with.
+            criterion (torch.nn.Module): The loss criterion you wish to use to train the model.
+            optimizer (torch.optim.Optimizer): The optimizer you wish to use to train the model.
+            lr (float): The learning rate you wish to use to train the model.
+            epochs (int): The number of epochs you wish to train the model for.
+            num_classes (int): The number of labelled classes in the classification task.
+            device (Optional[torch.device], optional): The torch.device used for computation. Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+            logging_interval (int, optional): The interval at which to log training progress. Defaults to 100.
+        """
         super().__init__(
             model=model,
             criterion=criterion,
@@ -46,23 +60,42 @@ class PrototypicalityPlugin(Plugin):
 
     @staticmethod
     def name() -> str:
+        """
+        Returns:
+            str: The name of the plugin.
+        """
         return "prototypicality"
 
     @staticmethod
     def long_name() -> str:
+        """
+        Returns:
+            str: The long name of the plugin.
+        """
         return "prototypicality"
 
     @staticmethod
     def type() -> str:
-        """The type of the plugin."""
+        """
+        Returns:
+            str: The type of the plugin.
+        """
         return "generic"
 
     @staticmethod
     def hard_direction() -> str:
+        """
+        Returns:
+            str: The direction of hardness for the plugin, i.e. whether high or low scores indicate hardness.
+        """
         return "high"
 
     @staticmethod
     def score_description() -> str:
+        """
+        Returns:
+            str: A description of the score.
+        """
         return """Prototypicality calculates the latent space clustering
 distance of the sample to the class centroid as the metric to characterize data.
 """
@@ -73,6 +106,16 @@ distance of the sample to the class centroid as the metric to characterize data.
         net: torch.nn.Module,
         device: Union[str, torch.device] = DEVICE,
     ) -> None:
+        """
+        An internal method to update the plugin's state with the model's current state.
+        It calculates the mean embeddings for each class and uses these to calculate the cosine
+        similarity between the sample and the class centroid.
+
+        Args:
+            net (torch.nn.Module): The model to use to compute the scores.
+            device (Union[str, torch.device], optional): The torch.device used for computation.
+            Defaults to torch.device("cuda" if torch.cuda.is_available() else "cpu").
+        """
         # Initialize accumulators for embeddings and counts for each label
         embeddings_dict: Dict[int, List] = {i: [] for i in range(self.num_classes)}
         log.debug("computing mean embeddings...")
@@ -123,6 +166,18 @@ distance of the sample to the class centroid as the metric to characterize data.
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def compute_scores(self, recompute: bool = False) -> np.ndarray:
+        """
+        A method to compute the prototypicality scores for the plugin.
+
+        Args:
+            recompute (bool, optional): A flag to recompute the scores from scratch. Defaults to False.
+
+        Raises:
+            ValueError: raises a ValueError if the plugin has not been fit yet.
+
+        Returns:
+            np.ndarray: The prototypicality scores for the plugin.
+        """
         if not self.has_been_fit:
             raise ValueError("Plugin has not been fit yet.")
         if not recompute and self._scores is not None:

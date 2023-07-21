@@ -155,7 +155,7 @@ class Plugin(metaclass=ABCMeta):
                 f"Plugin {self.name()} has already been fit. Re-fitting is not allowed. If you wish to fit with different parameters, please create a new instance of the plugin."
             )
         all_args = locals()
-        log.info(f"Fitting {self.name()} plugin")
+        log.info(f"Fitting {self.name()}")
         """Fit the plugin model"""
         self.datahandler = datahandler
         self.dataloader = datahandler.dataloader

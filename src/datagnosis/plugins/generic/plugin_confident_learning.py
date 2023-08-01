@@ -1,5 +1,5 @@
 # stdlib
-from typing import Optional, Union
+from typing import Optional, Tuple, Union, cast
 
 # third party
 import numpy as np
@@ -113,7 +113,7 @@ predictions than the true labels.
         logits: Union[torch.Tensor, np.ndarray],
         targets: Union[torch.Tensor, np.ndarray],
         probs: Union[torch.Tensor, np.ndarray],
-    ) -> None:
+    ) -> None:  # TODO: reverse the logic to cast tensor to array first
         """
         An internal method that updates the plugin with the logits, targets and probs of the model.
 
@@ -133,7 +133,9 @@ predictions than the true labels.
         self.probs = probs.detach().cpu().numpy()
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self, recompute: bool = False) -> np.ndarray:
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         Computes the scores for the plugin.  This method is called during the score() method.
 
@@ -151,8 +153,9 @@ predictions than the true labels.
         if not recompute and self._scores is not None:
             return self._scores
         else:
+
             self._scores = get_label_scores(
-                labels=self.targets,
+                labels=cast(np.ndarray, self.targets),
                 pred_probs=self.probs,
             )
 

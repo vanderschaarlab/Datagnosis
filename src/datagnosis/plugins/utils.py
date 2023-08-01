@@ -17,6 +17,7 @@ from pydantic import validate_arguments
 from torch.utils.data import DataLoader
 
 # datagnosis absolute
+import datagnosis.logger as log
 from datagnosis.plugins.core.datahandler import DataHandler
 from datagnosis.utils.constants import DEVICE
 
@@ -138,10 +139,15 @@ def get_all_args_hash(all_args: dict) -> str:
     """
     all_args_hash = ""
     if len(all_args) > 0:
+        # log.debug(f"all_args: {all_args}")
         if "self" in all_args:
             all_args.pop("self")
         all_args.pop("use_cache_if_exists", None)
         serializable_args = get_json_serializable_args(all_args)
+        log.debug(f"xxx handler xxx: {serializable_args['datahandler']}")
+        # log.debug(f"handler.X: {all_args['datahandler'].X}")
+        # log.debug(f"handler.y: {all_args['datahandler'].y}")
+
         args_hash_raw = json.dumps(serializable_args, sort_keys=True).encode()
         hash_object = hashlib.sha256(args_hash_raw)
         all_args_hash = hash_object.hexdigest()

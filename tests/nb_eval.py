@@ -23,6 +23,7 @@ def run_notebook(notebook_path: Path) -> None:
 enabled_tests = [
     "tutorial_01_simple_tabular_example",
     "tutorial_02_images",
+    "tutorial_03_tabular_COVID19_data",
 ]
 
 

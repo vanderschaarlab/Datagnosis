@@ -74,9 +74,9 @@ def test_mock_plugin_fail() -> None:
 
 def test_mock_plugin_fit() -> None:
     plugin = MockPlugin(
-        model=torch.nn.Linear(2, 1),
+        model=torch.nn.Linear(2, 2),
         criterion=torch.nn.MSELoss(),
-        optimizer=torch.optim.Adam(torch.nn.Linear(2, 1).parameters(), lr=0.01),
+        optimizer=torch.optim.Adam(torch.nn.Linear(2, 2).parameters(), lr=0.01),
         lr=0.01,
         epochs=10,
         num_classes=3,
@@ -128,9 +128,9 @@ def test_mock_plugin_fit() -> None:
 
 def test_mock_plugin_extract_all_methods() -> None:
     plugin = MockPlugin(
-        model=torch.nn.Linear(2, 1),
+        model=torch.nn.Linear(2, 2),
         criterion=torch.nn.MSELoss(),
-        optimizer=torch.optim.Adam(torch.nn.Linear(2, 1).parameters(), lr=0.01),
+        optimizer=torch.optim.Adam(torch.nn.Linear(2, 2).parameters(), lr=0.01),
         lr=0.01,
         epochs=10,
         num_classes=3,
@@ -185,7 +185,7 @@ def test_mock_plugin_extract_all_methods() -> None:
     assert len(extracted[0][2]) == 2
     assert extracted[1].shape[0] == 2
 
-    extracted = plugin.extract_datapoints(method="top_n", n=3, sort=True)
+    extracted = plugin.extract_datapoints(method="top_n", n=3, sort_by_index=True)
     assert isinstance(extracted, tuple)
     assert isinstance(extracted[0][0], torch.Tensor)
     assert isinstance(extracted[0][1], torch.Tensor)
@@ -223,9 +223,9 @@ def test_mock_plugin_extract_all_methods() -> None:
 
 def test_mock_plugin_fail_on_extract_by_index() -> None:
     plugin = MockPlugin(
-        model=torch.nn.Linear(2, 1),
+        model=torch.nn.Linear(2, 2),
         criterion=torch.nn.MSELoss(),
-        optimizer=torch.optim.Adam(torch.nn.Linear(2, 1).parameters(), lr=0.01),
+        optimizer=torch.optim.Adam(torch.nn.Linear(2, 2).parameters(), lr=0.01),
         lr=0.01,
         epochs=10,
         num_classes=3,
@@ -274,9 +274,9 @@ def test_mock_plugin_fail_on_extract_by_index() -> None:
 
 def test_mock_plugin_fail_on_extract_by_threshold() -> None:
     plugin = MockPlugin(
-        model=torch.nn.Linear(2, 1),
+        model=torch.nn.Linear(2, 2),
         criterion=torch.nn.MSELoss(),
-        optimizer=torch.optim.Adam(torch.nn.Linear(2, 1).parameters(), lr=0.01),
+        optimizer=torch.optim.Adam(torch.nn.Linear(2, 2).parameters(), lr=0.01),
         lr=0.01,
         epochs=10,
         num_classes=3,
@@ -323,9 +323,9 @@ def test_mock_plugin_fail_on_extract_by_threshold() -> None:
 
 def test_mock_plugin_fail_on_extract_by_top_n() -> None:
     plugin = MockPlugin(
-        model=torch.nn.Linear(2, 1),
+        model=torch.nn.Linear(2, 2),
         criterion=torch.nn.MSELoss(),
-        optimizer=torch.optim.Adam(torch.nn.Linear(2, 1).parameters(), lr=0.01),
+        optimizer=torch.optim.Adam(torch.nn.Linear(2, 2).parameters(), lr=0.01),
         lr=0.01,
         epochs=10,
         num_classes=3,

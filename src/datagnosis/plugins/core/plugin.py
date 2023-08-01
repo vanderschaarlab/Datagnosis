@@ -155,7 +155,7 @@ class Plugin(metaclass=ABCMeta):
                 f"Plugin {self.name()} has already been fit. Re-fitting is not allowed. If you wish to fit with different parameters, please create a new instance of the plugin."
             )
         all_args = locals()
-        log.info(f"Fitting {self.name()} plugin")
+        log.info(f"Fitting {self.name()}")
         """Fit the plugin model"""
         self.datahandler = datahandler
         self.dataloader = datahandler.dataloader
@@ -336,6 +336,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         threshold: Optional[float],
         threshold_range: Optional[Tuple[Union[float, int], Union[float, int]]],
         hardness: str,
+        sort: bool = False,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Internal function to extract datapoints from the plugin model by applying a threshold or range to the scores. Called by extract_datapoints.
@@ -399,7 +400,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         self,
         n: int,
         hardness: str = "hard",
-        sort: bool = True,
+        sort_by_index: bool = True,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Internal function to extract datapoints from the plugin model by  selecting the top n scores. Called by extract_datapoints.
 
@@ -407,7 +408,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         Args:
             n (int): The number of datapoints to extract.
             hardness (str, optional): Flag to indicate whether to extract hard or easy data points. Defaults to "hard".
-            sort (bool, optional): Flag to indicate whether to sort the extracted datapoints. Defaults to True.
+            sort_by_index (bool, optional): Flag to indicate whether to sort the extracted datapoints by their index. Defaults to True.
 
         Returns:
             Tuple[np.ndarray, np.ndarray]: A tuple of the extracted datapoints and the scores of the extracted datapoints.
@@ -425,8 +426,11 @@ Missing required arguments for {self.update_point} update. Required arguments ar
                 extracted = np.argsort(extraction_scores)[:n]
             else:
                 extracted = np.argsort(extraction_scores)[:n]
-        if sort:
+        if sort_by_index:
+            log.info("Sorting extracted datapoints")
+            log.info(extracted)
             extracted = sorted(extracted)
+            log.info(extracted)
         return (
             self.dataloader_unshuffled.dataset[extracted],
             extraction_scores[extracted],
@@ -456,7 +460,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         threshold_range: Optional[Tuple[float, float]] = None,
         n: Optional[int] = None,
         indices: Optional[List[int]] = None,
-        sort: bool = True,  # Only used for top_n
+        sort_by_index: bool = True,  # Only used for top_n
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Extracts datapoints from the plugin model by applying a threshold or range to the scores, selecting the top n scores, or selecting datapoints by index.
 
@@ -467,7 +471,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
             threshold_range (Optional[Tuple[float, float]], optional): The range of thresholds to apply to the scores. Must be provided if the given method is "threshold" and the value passed to threshold is None. Defaults to None.
             n (Optional[int], optional): The number of datapoints to extract. Must be provided if the given method is "top_n". Defaults to None.
             indices (Optional[List[int]], optional): The indices of the datapoints to extract. Must be provided if the given method is "index". Defaults to None.
-            sort (bool, optional): Flag to indicate whether to sort the extracted datapoints. Defaults to True.
+            sort_by_index (bool, optional): Flag to indicate whether to sort_by_index the extracted datapoints. Defaults to True.
 
         Raises:
             ValueError: raised if the given method is not one of "threshold", "top_n", or "index".
@@ -499,7 +503,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
                 log.warning(
                     "You have provided a `threshold_range`, this is only used with the `threshold` method, so will be ignored."
                 )
-            if threshold != 0.01:
+            if threshold is not None:
                 log.warning(
                     "You have provided a `threshold`, this is only used with the `threshold` method, so will be ignored."
                 )
@@ -509,7 +513,9 @@ Missing required arguments for {self.update_point} update. Required arguments ar
                 )
             if n is None:
                 raise ValueError("You must provide an `n` value.")
-            return self._extract_datapoints_by_top_n(n, hardness, sort=sort)
+            return self._extract_datapoints_by_top_n(
+                n, hardness, sort_by_index=sort_by_index
+            )
         elif method == "index":
             if threshold is not None:
                 log.warning(
@@ -537,7 +543,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         ...
 
     @abstractmethod
-    def compute_scores(self) -> None:
+    def compute_scores(self) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Compute the scores for the plugin model"""
         ...
 

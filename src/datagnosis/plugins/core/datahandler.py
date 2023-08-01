@@ -47,7 +47,7 @@ class DataHandler(metaclass=ABCMeta):
         """
         if reproducible:
             enable_reproducible_results(0)
-        # create X and y tesnors
+        # create X and y tensors
         if isinstance(X, pd.DataFrame):
             self.X = torch.Tensor(X.values)
         elif isinstance(X, np.ndarray):

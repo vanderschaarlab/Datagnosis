@@ -185,7 +185,7 @@ def test_mock_plugin_extract_all_methods() -> None:
     assert len(extracted[0][2]) == 2
     assert extracted[1].shape[0] == 2
 
-    extracted = plugin.extract_datapoints(method="top_n", n=3, sort=True)
+    extracted = plugin.extract_datapoints(method="top_n", n=3, sort_by_index=True)
     assert isinstance(extracted, tuple)
     assert isinstance(extracted[0][0], torch.Tensor)
     assert isinstance(extracted[0][1], torch.Tensor)

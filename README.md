@@ -94,7 +94,7 @@ hcm.plot_scores(axis=1, plot_type="scatter")
 
 ## 🔑 Methods
 
-Datagnosis builds on D-CAT which is a Hardness Characterization Method Benchmarking framework also from the van der Schaar lab. 
+Datagnosis builds on D-CAT which is a Hardness Characterization Method Benchmarking framework also from the van der Schaar lab.
 
 For benchmarking of the below methods see https://github.com/seedatnabeel/D-CAT.
 

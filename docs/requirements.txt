@@ -2,3 +2,4 @@ furo
 myst-parser
 nbsphinx
 sphinx
+sphinxemoji

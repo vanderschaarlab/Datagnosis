@@ -363,23 +363,31 @@ Missing required arguments for {self.update_point} update. Required arguments ar
                     0
                 ]  # TODO: should be able to extract on any score, not just first
             if threshold_range is None:
+                if threshold is None:
+                    raise ValueError(
+                        "You must provide either a threshold or threshold_range value."
+                    )
                 if hardness == "hard":
                     if self.hard_direction() == "low":
                         extracted = np.where(
-                            extraction_scores < np.max(extraction_scores) - threshold
+                            extraction_scores
+                            < np.max(extraction_scores).item() - threshold
                         )
                     else:
                         extracted = np.where(
-                            extraction_scores > np.max(extraction_scores) + threshold
+                            extraction_scores
+                            > np.max(extraction_scores).item() + threshold
                         )
                 else:
                     if self.hard_direction() == "high":
                         extracted = np.where(
-                            extraction_scores < np.max(extraction_scores) - threshold
+                            extraction_scores
+                            < np.max(extraction_scores).item() - threshold
                         )
                     else:
                         extracted = np.where(
-                            extraction_scores > np.max(extraction_scores) + threshold
+                            extraction_scores
+                            > np.max(extraction_scores).item() + threshold
                         )
             else:
                 if threshold is not None:
@@ -692,6 +700,8 @@ class PluginLoader:
     @validate_call
     def _load_single_plugin_impl(self, plugin_name: str) -> Optional[Type]:
         """Helper for loading a single plugin implementation"""
+        cls = None  # This should be overwritten by the plugin below
+
         plugin = Path(plugin_name)
         name = plugin.stem
         ptype = plugin.parent.name
@@ -727,6 +737,10 @@ class PluginLoader:
                 failed = True
 
         if failed:
+            log.critical(f"module {name} load failed")
+            return None
+
+        if cls is None:
             log.critical(f"module {name} load failed")
             return None
 
@@ -767,11 +781,6 @@ class PluginLoader:
             )
         self._plugins[name] = cls
         return self
-
-    @validate_call
-    def load(self, buff: bytes) -> Any:
-        """Load serialized plugin"""
-        return Plugin.load(buff)
 
     @validate_call(config={"arbitrary_types_allowed": True})
     def get(self, name: str, *args: Any, **kwargs: Any) -> Any:

@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union
 # third party
 import numpy as np
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -14,7 +14,7 @@ from datagnosis.utils.constants import DEVICE
 
 
 class DataIQPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -122,8 +122,10 @@ define the category `Easy`. Low Confidence scores define `Hard`. High Aleatoric 
         )
         self.data_eval.on_epoch_end(net=net, device=device, gradient=False)
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self, recompute: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+    @validate_call(config={"arbitrary_types_allowed": True})
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Optional[Union[Tuple[np.ndarray, np.ndarray], np.ndarray]]:
         """
         A method to compute scores for the plugin. This method is called during the score() method.
 
@@ -147,9 +149,12 @@ Scores are computed during fitting. If you want to recompute scores from scratch
 please re-fit the hardness characterization method. Using scores computed during the previous fit() call.
             """
             )
-        self._scores = (self.data_eval.confidence, self.data_eval.aleatoric)
+        self._scores = (
+            self.data_eval.confidence,
+            self.data_eval.aleatoric,
+        )  # pyright: ignore
         self.score_names = ("Confidence", "Aleatoric Uncertainty")
-        return self._scores
+        return self._scores  # pyright: ignore
 
 
 plugin = DataIQPlugin

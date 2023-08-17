@@ -1,10 +1,10 @@
 # stdlib
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 
 # third party
 import numpy as np
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call
 from torch import nn
 from torch.utils.data import DataLoader
 
@@ -14,7 +14,7 @@ from datagnosis.utils.constants import DEVICE
 
 # Class that implements both Data-IQ and Data Maps
 class DataIQ_MAPS_Torch:
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         dataloader: DataLoader,
@@ -56,10 +56,12 @@ class DataIQ_MAPS_Torch:
         """
 
         # Compute both the gold label and true label probabilities over all samples in the dataset
-        gold_label_probabilities: List = (
-            list()
+        gold_label_probabilities: np.ndarray = np.array(
+            []
         )  # gold label probabilities, i.e. actual ground truth label
-        true_probabilities = list()  # true label probabilities, i.e. predicted label
+        true_probabilities = np.array(
+            []
+        )  # true label probabilities, i.e. predicted label
         net = net.to(device)
         net.eval()
         with torch.no_grad():
@@ -84,12 +86,14 @@ class DataIQ_MAPS_Torch:
                 if len(torch.squeeze(y)) == 1:
                     # get true labels
                     true_probabilities = torch.tensor(probabilities)
+                    batch_true_probabilities = torch.where(
+                        y == 0, 1 - probabilities, probabilities
+                    )  # TODO: check if this is correct - test with and without this line
 
                     # get gold labels
                     probabilities, y = torch.squeeze(
                         torch.tensor(probabilities)
                     ), torch.squeeze(y)
-
                     batch_gold_label_probabilities = torch.where(
                         y == 0, 1 - probabilities, probabilities
                     )
@@ -149,7 +153,7 @@ class DataIQ_MAPS_Torch:
             self._true_probabilities = np.hstack(stack)
 
     @property
-    def gold_labels_probabilities(self) -> np.ndarray:
+    def gold_labels_probabilities(self) -> Optional[np.ndarray]:
         """
         Returns:
             np.ndarray: Gold label predicted probabilities of the "correct" label: np.array(n_samples, n_epochs)
@@ -157,7 +161,7 @@ class DataIQ_MAPS_Torch:
         return self._gold_labels_probabilities
 
     @property
-    def true_probabilities(self) -> np.ndarray:
+    def true_probabilities(self) -> Optional[np.ndarray]:
         """
         Returns:
             Actual predicted probabilities of the predicted label: np.array(n_samples, n_epochs)
@@ -165,11 +169,15 @@ class DataIQ_MAPS_Torch:
         return self._true_probabilities
 
     @property
-    def confidence(self) -> np.ndarray:
+    def confidence(self) -> Optional[np.ndarray]:
         """
         Returns:
             Average predictive confidence across epochs: np.array(n_samples)
         """
+        if self._gold_labels_probabilities is None:
+            raise ValueError(
+                "`_gold_labels_probabilities` values have not been calculated. Please run on_epoch_end(), which can be done with `plugin.fit()`."
+            )
         return np.mean(self._gold_labels_probabilities, axis=-1)
 
     @property

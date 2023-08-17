@@ -1,14 +1,14 @@
 # stdlib
 import os
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 # third party
 import numpy as np
 import pandas as pd
 import torch
 from aum import AUMCalculator
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -17,7 +17,7 @@ from datagnosis.utils.constants import DEVICE
 
 
 class AUMPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -62,8 +62,8 @@ class AUMPlugin(Plugin):
             logging_interval=logging_interval,
             requires_intermediate=False,
         )
-        save_dir = save_dir if isinstance(save_dir, Path) else Path(save_dir)
-        self.aum_calculator = AUMCalculator(save_dir.resolve(), compressed=True)
+        save_dir = str(save_dir.resolve()) if isinstance(save_dir, Path) else save_dir
+        self.aum_calculator = AUMCalculator(save_dir, compressed=True)
         self.aum_scores: List = []
         self.update_point: str = "mid-epoch"
 
@@ -116,7 +116,7 @@ than mislabeled samples. Thus, if you are looking to identify hard to classify
 datapoints, you should look for samples with low AUMs.
 """
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         y_pred: Union[List, torch.Tensor],
@@ -131,6 +131,8 @@ datapoints, you should look for samples with low AUMs.
             y_batch (Union[List, torch.Tensor]): The ground truth labels.
             sample_ids (Union[List, torch.Tensor]): The sample ids.
         """
+        if isinstance(y_pred, list):
+            y_pred = torch.Tensor(y_pred)
         if isinstance(y_batch, list):
             y_batch = torch.Tensor(y_batch)
         if isinstance(sample_ids, list):
@@ -139,8 +141,10 @@ datapoints, you should look for samples with low AUMs.
             y_pred, y_batch.type(torch.int64), sample_ids.cpu().numpy()
         )
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self, recompute: bool = False) -> np.ndarray:
+    @validate_call(config={"arbitrary_types_allowed": True})
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         A method to compute the AUM scores.  This method is called during the score() method.
 
@@ -161,7 +165,7 @@ datapoints, you should look for samples with low AUMs.
             if os.path.exists(self.workspace / "aum_values.csv"):
                 os.remove(self.workspace / "aum_values.csv")
 
-            self.aum_calculator.finalize(save_dir=self.workspace)
+            self.aum_calculator.finalize(save_dir=str(self.workspace.resolve()))
             aum_df = pd.read_csv(self.workspace / "aum_values.csv")
             self.aum_scores = []
             for i in range(aum_df.shape[0]):

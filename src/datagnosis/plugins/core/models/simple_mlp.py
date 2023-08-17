@@ -1,11 +1,11 @@
 # third party
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call
 from torch import nn
 
 
 class SimpleMLP(nn.Module):
-    @validate_arguments
+    @validate_call
     def __init__(self, input_dim: int = 4, output_dim: int = 3):
         super().__init__()
         self.input_dim = input_dim

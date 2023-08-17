@@ -31,7 +31,7 @@ plugin_args_breast_cancer = {
 
 def test_seperate_cache_for_different_datasets() -> None:
     X_iris, y_iris = load_iris(return_X_y=True, as_frame=True)
-    datahander_iris = DataHandler(X_iris, y_iris, batch_size=32)
+    datahander_iris = DataHandler(X_iris, y_iris, batch_size=32)  # pyright: ignore
     iris_plugin = Plugins().get(plugin_name, **plugin_args_iris)
     iris_plugin.fit(
         datahandler=datahander_iris,
@@ -46,7 +46,7 @@ def test_seperate_cache_for_different_datasets() -> None:
         return_X_y=True, as_frame=True
     )
     datahander_breast_cancer = DataHandler(
-        X_breast_cancer, y_breast_cancer, batch_size=32
+        X_breast_cancer, y_breast_cancer, batch_size=32  # pyright: ignore
     )
     breast_cancer_plugin = Plugins().get(plugin_name, **plugin_args_breast_cancer)
     breast_cancer_plugin.fit(

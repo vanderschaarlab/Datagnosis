@@ -1,10 +1,10 @@
 # stdlib
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Tuple, Union
 
 # third party
 import numpy as np
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call  # pyright: ignore
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -14,7 +14,7 @@ from datagnosis.utils.constants import DEVICE
 
 # This is a class that computes scores for VOG
 class VOGPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -100,7 +100,7 @@ class VOGPlugin(Plugin):
         """
         return """VoG (Variance of gradients) estimates the variance of gradients for each sample over training"""
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         net: torch.nn.Module,
@@ -139,10 +139,10 @@ class VOGPlugin(Plugin):
 
                 idx += 1
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def compute_scores(
         self, mode: str = "complete", recompute: bool = False
-    ) -> np.ndarray:
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """A method that computes the Variance of Gradients scores for the plugin.
 
         Args:

@@ -49,7 +49,7 @@ def test_plugin_type(test_plugin: Plugin) -> None:
 )
 def test_plugin_fit(test_plugin: Plugin) -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
-    datahander = DataHandler(X, y, batch_size=32)
+    datahander = DataHandler(X, y, batch_size=32)  # pyright: ignore
     test_plugin.fit(
         datahandler=datahander,
         use_caches_if_exist=False,
@@ -63,7 +63,7 @@ def test_plugin_fit(test_plugin: Plugin) -> None:
 )
 def test_plugin_scores(test_plugin: Plugin) -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
-    datahander = DataHandler(X, y, batch_size=32)
+    datahander = DataHandler(X, y, batch_size=32)  # pyright: ignore
     test_plugin.fit(
         datahandler=datahander,
         use_caches_if_exist=False,

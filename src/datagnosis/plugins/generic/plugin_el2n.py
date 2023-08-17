@@ -1,11 +1,11 @@
 # stdlib
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 # third party
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -15,7 +15,7 @@ from datagnosis.utils.constants import DEVICE
 
 # This is a class that computes scores for EL2N.
 class EL2NPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -103,7 +103,7 @@ class EL2NPlugin(Plugin):
         """
         return """EL2N calculates the L2 norm of error over training in order to characterize data for computational purposes."""
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         logits: Union[List, torch.Tensor],
@@ -123,8 +123,10 @@ class EL2NPlugin(Plugin):
         self.unnormalized_model_outputs = logits
         self.targets = targets
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self, recompute: bool = False) -> np.ndarray:
+    @validate_call(config={"arbitrary_types_allowed": True})
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         A method to compute the EL2N scores for the plugin. This method is called by the `scores()` method.
 

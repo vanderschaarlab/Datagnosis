@@ -5,9 +5,9 @@ from typing import Any, Optional, Tuple, Union
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pydantic import validate_arguments
+from pydantic import validate_call  # pyright: ignore
 from torch import vmap
-from torch.func import grad
+from torch._functorch.eager_transforms import grad
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -17,7 +17,7 @@ from datagnosis.utils.constants import DEVICE
 
 
 class GRANDPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -103,7 +103,7 @@ class GRANDPlugin(Plugin):
         """
         return """GraNd measures the gradient norm to characterize data."""
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         net: torch.nn.Module,
@@ -119,8 +119,10 @@ class GRANDPlugin(Plugin):
         self.net = net
         self.device = device
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self, recompute: bool = False) -> np.ndarray:
+    @validate_call(config={"arbitrary_types_allowed": True})
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         A method to compute the GraNd scores for the plugin.
 

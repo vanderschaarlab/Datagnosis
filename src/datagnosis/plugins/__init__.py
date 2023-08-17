@@ -3,10 +3,9 @@ import glob
 from os.path import basename, dirname, isfile, join
 
 # third party
-from pydantic import validate_arguments
+from pydantic import validate_call  # pyright: ignore
 
 # datagnosis absolute
-# synthcity absolute
 from datagnosis.plugins.core.plugin import Plugin, PluginLoader  # noqa: F401,E402
 
 def_categories = [
@@ -20,7 +19,7 @@ for cat in def_categories:
 
 
 class Plugins(PluginLoader):
-    @validate_arguments
+    @validate_call
     def __init__(self, categories: list = def_categories) -> None:
         plugins_to_use = []
         for cat in categories:
@@ -29,7 +28,12 @@ class Plugins(PluginLoader):
         super().__init__(plugins_to_use, Plugin, categories)
 
 
-__all__ = [basename(f)[:-3] for f in plugins[cat] for cat in plugins if isfile(f)] + [
+__all__ = [
+    basename(f)[:-3]
+    for f in plugins[cat]  # pyright: ignore
+    for cat in plugins
+    if isfile(f)
+] + [
     "Plugins",
     "Plugin",
 ]

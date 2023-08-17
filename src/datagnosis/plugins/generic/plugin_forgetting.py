@@ -1,11 +1,11 @@
 # stdlib
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 # third party
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 from datagnosis.plugins.core.plugin import Plugin
@@ -13,7 +13,7 @@ from datagnosis.utils.constants import DEVICE
 
 
 class ForgettingPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -102,7 +102,7 @@ class ForgettingPlugin(Plugin):
 i.e., the time a sample correctly learned at one epoch is then forgotten.
 """
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         logits: Union[List, torch.Tensor],
@@ -143,8 +143,10 @@ i.e., the time a sample correctly learned at one epoch is then forgotten.
 
         self.num_epochs += 1
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self, recompute: bool = False) -> np.ndarray:
+    @validate_call(config={"arbitrary_types_allowed": True})
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         A method to compute the forgetting scores for the plugin.
 

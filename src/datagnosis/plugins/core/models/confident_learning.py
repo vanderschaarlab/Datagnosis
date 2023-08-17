@@ -3,10 +3,10 @@ from typing import List
 
 # third party
 import numpy as np
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
+@validate_call(config={"arbitrary_types_allowed": True})
 def get_label_scores(
     labels: np.ndarray,
     pred_probs: np.ndarray,
@@ -24,7 +24,7 @@ def get_label_scores(
     return np.array([pred_probs[i, l] for i, l in enumerate(labels)])
 
 
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
+@validate_call(config={"arbitrary_types_allowed": True})
 def get_conf_thresholds(
     labels: np.ndarray,
     pred_probs: np.ndarray,
@@ -56,7 +56,7 @@ def get_conf_thresholds(
     return np.asarray(confident_thresholds)
 
 
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
+@validate_call(config={"arbitrary_types_allowed": True})
 def get_conf_learning_error_indices(
     labels: np.ndarray,
     pred_probs: np.ndarray,
@@ -106,7 +106,7 @@ def get_conf_learning_error_indices(
     return indices.tolist()
 
 
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
+@validate_call(config={"arbitrary_types_allowed": True})
 def num_mislabelled_data_points(
     labels: np.ndarray,
     pred_probs: np.ndarray,

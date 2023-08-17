@@ -1,5 +1,5 @@
 # stdlib
-from typing import List
+from typing import List, Type
 
 # third party
 import torch
@@ -131,7 +131,11 @@ Deep Residual Learning for Image Recognition. arXiv:1512.03385
 """
 
 
-class BasicBlock(nn.Module):
+class Block(nn.Module):
+    expansion: int = 1
+
+
+class BasicBlock(Block):
     expansion: int = 1
 
     def __init__(self, in_planes: int, planes: int, stride: int = 1) -> None:
@@ -175,7 +179,7 @@ class BasicBlock(nn.Module):
         return out
 
 
-class Bottleneck(nn.Module):
+class Bottleneck(Block):
     expansion: int = 4
 
     def __init__(self, in_planes: int, planes: int, stride: int = 1) -> None:
@@ -225,7 +229,7 @@ class Bottleneck(nn.Module):
 # This is a ResNet model for MNIST dataset
 class ResNetMNIST(nn.Module):
     def __init__(
-        self, block: nn.Module, num_blocks: List[int], num_classes: int = 10
+        self, block: Type[Block], num_blocks: List[int], num_classes: int = 10
     ) -> None:
         super(ResNetMNIST, self).__init__()
         self.in_planes: int = 64
@@ -243,7 +247,7 @@ class ResNetMNIST(nn.Module):
         self.dropout3 = nn.Dropout(p=0.2)
 
     def _make_layer(
-        self, block: nn.Module, planes: int, num_blocks: int, stride: int
+        self, block: Type[Block], planes: int, num_blocks: int, stride: int
     ) -> nn.Module:
         """
         Make a layer of the ResNet model
@@ -295,7 +299,7 @@ class ResNetMNIST(nn.Module):
 # This is a ResNet model
 class ResNet(nn.Module):
     def __init__(
-        self, block: nn.Module, num_blocks: List[int], num_classes: int = 10
+        self, block: Type[Block], num_blocks: List[int], num_classes: int = 10
     ) -> None:
         super(ResNet, self).__init__()
         self.in_planes: int = 64
@@ -313,7 +317,7 @@ class ResNet(nn.Module):
         self.dropout3 = nn.Dropout(p=0.2)
 
     def _make_layer(
-        self, block: nn.Module, planes: int, num_blocks: int, stride: int
+        self, block: Type[Block], planes: int, num_blocks: int, stride: int
     ) -> nn.Module:
         """
         Make a layer of the ResNet model

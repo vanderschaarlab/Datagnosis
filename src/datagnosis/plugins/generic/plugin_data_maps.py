@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union
 # third party
 import numpy as np
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -16,7 +16,7 @@ from datagnosis.utils.constants import DEVICE
 class DataMapsPlugin(Plugin):
     # Based on: https://github.com/seedatnabeel/Data-IQ
     # Data Maps: https://arxiv.org/abs/2009.10795
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -106,7 +106,7 @@ that are well classified by the model. Low confidence scores define data points 
 misclassified (or hard to classify) by the model.
 """
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         net: torch.nn.Module,
@@ -125,8 +125,10 @@ misclassified (or hard to classify) by the model.
         )
         self.data_eval.on_epoch_end(net=net, device=device, gradient=False)
 
-    @validate_arguments
-    def compute_scores(self, recompute: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+    @validate_call
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         A method to compute scores for the plugin. This method is called during the score() method.
 
@@ -150,9 +152,12 @@ Scores are computed during fitting. If you want to recompute scores from scratch
 please re-fit the hardness characterization method. Using scores computed during the previous fit() call.
             """
             )
-        self._scores = (self.data_eval.confidence, self.data_eval.variability)
+        self._scores = (
+            self.data_eval.confidence,
+            self.data_eval.variability,
+        )  # pyright: ignore
         self.score_names = ("Confidence", "Variability")
-        return self._scores
+        return self._scores  # pyright: ignore
 
 
 plugin = DataMapsPlugin

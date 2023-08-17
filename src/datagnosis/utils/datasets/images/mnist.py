@@ -41,10 +41,9 @@ def load_mnist() -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor
         root="./data", train=False, download=True, transform=transform
     )
 
-    X_train, y_train = train_dataset.data.type(torch.FloatTensor).unsqueeze(
-        1
-    ), train_dataset.targets.type(torch.LongTensor)
-    X_test, y_test = test_dataset.data.type(torch.FloatTensor).unsqueeze(
-        1
-    ), test_dataset.targets.type(torch.LongTensor)
+    X_train, y_train = (
+        train_dataset.data.float().unsqueeze(1),
+        train_dataset.targets.long(),
+    )
+    X_test, y_test = test_dataset.data.float().unsqueeze(1), test_dataset.targets.long()
     return X_train, y_train, X_test, y_test

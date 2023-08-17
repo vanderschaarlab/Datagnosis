@@ -1,12 +1,12 @@
 # stdlib
-from typing import Union
+from typing import Tuple, Union
 
 # third party
 import numpy as np
 import torch
 
 
-def check_dim(x: Union[torch.Tensor, np.ndarray, list]) -> int:
+def check_dim(x: Union[Tuple, torch.Tensor, np.ndarray, list]) -> int:
     """
     Check the dimension of the input.
 

@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -14,7 +14,7 @@ from datagnosis.utils.constants import DEVICE
 
 
 class ConfAgreePlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -102,7 +102,7 @@ predictions. Therefore, examples with low confidence are considered hard to clas
 ensemble of models are not collectively confident about how to classify the data point.
 """
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         net: torch.nn.Module,
@@ -137,7 +137,7 @@ ensemble of models are not collectively confident about how to classify the data
                 max_values, _ = torch.max(mean_softmax_output, dim=1)
                 self.mean_scores.extend(max_values.cpu().numpy().tolist())
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def compute_scores(self, recompute: bool = False) -> np.ndarray:
         """
         A method to compute the conf_agree scores.  This method is called during the score() method.

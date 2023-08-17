@@ -3,7 +3,6 @@ import glob
 from os.path import basename, dirname, isfile, join
 
 # datagnosis absolute
-# synthcity absolute
 from datagnosis.plugins.core.plugin import Plugin, PluginLoader  # noqa: F401,E402
 
 plugins = glob.glob(join(dirname(__file__), "plugin*.py"))

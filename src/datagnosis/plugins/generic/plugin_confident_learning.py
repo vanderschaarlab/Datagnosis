@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union, cast
 # third party
 import numpy as np
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -17,7 +17,7 @@ from datagnosis.utils.constants import DEVICE
 
 
 class ConfidentLearningPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -107,7 +107,7 @@ It is based on the idea that a classifier should be more confident in its
 predictions than the true labels.
 """
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         logits: Union[torch.Tensor, np.ndarray],
@@ -122,17 +122,18 @@ predictions than the true labels.
             targets (Union[torch.Tensor, np.ndarray]): The targets for the model.
             probs (Union[torch.Tensor, np.ndarray]): The probabilities from the model.
         """
-        if isinstance(logits, np.ndarray):
-            logits = torch.from_numpy(logits)
-        if isinstance(targets, np.ndarray):
-            targets = torch.from_numpy(targets)
-        if isinstance(probs, np.ndarray):
-            probs = torch.from_numpy(probs)
-        self.logits = logits
-        self.targets = targets.detach().cpu().numpy()
-        self.probs = probs.detach().cpu().numpy()
+        if isinstance(logits, torch.Tensor):
+            logits = logits.detach().cpu().numpy()
+        if isinstance(targets, torch.Tensor):
+            targets = targets.detach().cpu().numpy()
+        if isinstance(probs, torch.Tensor):
+            probs = probs.detach().cpu().numpy()
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+        self.logits = logits
+        self.targets = targets
+        self.probs = probs
+
+    @validate_call(config={"arbitrary_types_allowed": True})
     def compute_scores(
         self, recompute: bool = False
     ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
@@ -153,15 +154,14 @@ predictions than the true labels.
         if not recompute and self._scores is not None:
             return self._scores
         else:
-
             self._scores = get_label_scores(
                 labels=cast(np.ndarray, self.targets),
-                pred_probs=self.probs,
+                pred_probs=cast(np.ndarray, self.probs),
             )
 
             self.num_errors = num_mislabelled_data_points(
-                labels=self.targets,
-                pred_probs=self.probs,
+                labels=cast(np.ndarray, self.targets),
+                pred_probs=cast(np.ndarray, self.probs),
             )
 
             return self._scores

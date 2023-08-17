@@ -14,9 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import torch
-
-# import Third Party
-from pydantic import validate_arguments
+from pydantic import validate_call
+from typing_extensions import Self
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -29,7 +28,7 @@ from datagnosis.utils.reproducibility import clear_cache, enable_reproducible_re
 
 # Base class for Hardness Classification Methods (HCMs)
 class Plugin(metaclass=ABCMeta):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         model: torch.nn.Module,
@@ -73,7 +72,7 @@ class Plugin(metaclass=ABCMeta):
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
-        self.device = device
+        self.device = device if device is not None else DEVICE
         self.lr = lr
         self.epochs = epochs
         self.num_classes = num_classes
@@ -136,7 +135,7 @@ class Plugin(metaclass=ABCMeta):
         workspace: Union[Path, str] = Path("workspace/"),
         *args: Any,
         **kwargs: Any,
-    ) -> None:
+    ) -> Self:  # type: ignore
         """
         Fit the plugin model.
 
@@ -167,9 +166,13 @@ class Plugin(metaclass=ABCMeta):
         # Move model to device
         self.model.to(self.device)
 
-        # Set model to training mode
-        self.optimizer.lr = self.lr
+        logits = None
+        targets = None
+        probs = None
+        indices = None
+        self.optimizer.lr = self.lr  # pyright: ignore
         for epoch in range(self.epochs):
+            # Set model to training mode
             self.model.train()
             running_loss = 0.0
             for batch_idx, data in enumerate(self.dataloader):
@@ -241,10 +244,6 @@ class Plugin(metaclass=ABCMeta):
                 log.info(f"Epoch {epoch+1}/{self.epochs}: Loss={epoch_loss:.4f}")
 
             # streamline repeated computation across methods
-            logits = None
-            targets = None
-            probs = None
-            indices = None
             if self.requires_intermediate is True:
                 intermediates_cache_file = (
                     self.workspace
@@ -309,6 +308,7 @@ class Plugin(metaclass=ABCMeta):
         self.has_been_fit = True
         self.compute_scores()
         log.debug("Plugin fit complete and scores computed.")
+        return self
 
     def _safe_update(self, **kwargs: Any) -> None:
         """
@@ -337,7 +337,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         threshold_range: Optional[Tuple[Union[float, int], Union[float, int]]],
         hardness: str,
         sort: bool = False,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[Tuple[torch.Tensor, torch.Tensor, List], np.ndarray]:
         """
         Internal function to extract datapoints from the plugin model by applying a threshold or range to the scores. Called by extract_datapoints.
 
@@ -359,25 +359,35 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         else:
             extraction_scores = deepcopy(self._scores)
             if isinstance(extraction_scores, tuple):
-                extraction_scores = extraction_scores[0]
+                extraction_scores = extraction_scores[
+                    0
+                ]  # TODO: should be able to extract on any score, not just first
             if threshold_range is None:
+                if threshold is None:
+                    raise ValueError(
+                        "You must provide either a threshold or threshold_range value."
+                    )
                 if hardness == "hard":
                     if self.hard_direction() == "low":
                         extracted = np.where(
-                            extraction_scores < np.max(extraction_scores) - threshold
+                            extraction_scores
+                            < np.max(extraction_scores).item() - threshold
                         )
                     else:
                         extracted = np.where(
-                            extraction_scores > np.max(extraction_scores) + threshold
+                            extraction_scores
+                            > np.max(extraction_scores).item() + threshold
                         )
                 else:
                     if self.hard_direction() == "high":
                         extracted = np.where(
-                            extraction_scores < np.max(extraction_scores) - threshold
+                            extraction_scores
+                            < np.max(extraction_scores).item() - threshold
                         )
                     else:
                         extracted = np.where(
-                            extraction_scores > np.max(extraction_scores) + threshold
+                            extraction_scores
+                            > np.max(extraction_scores).item() + threshold
                         )
             else:
                 if threshold is not None:
@@ -392,7 +402,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
             extracted = extracted[0].tolist()
 
             return (
-                self.dataloader_unshuffled.dataset[extracted],
+                self.dataloader_unshuffled.dataset[extracted],  # pyright: ignore
                 extraction_scores[extracted],
             )
 
@@ -401,7 +411,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         n: int,
         hardness: str = "hard",
         sort_by_index: bool = True,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[Tuple[torch.Tensor, torch.Tensor, List], np.ndarray]:
         """Internal function to extract datapoints from the plugin model by  selecting the top n scores. Called by extract_datapoints.
 
 
@@ -413,9 +423,15 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         Returns:
             Tuple[np.ndarray, np.ndarray]: A tuple of the extracted datapoints and the scores of the extracted datapoints.
         """
+        if self._scores is None:
+            raise ValueError(
+                "You must fit the plugin before extracting datapoints by top n"
+            )
         extraction_scores = deepcopy(self._scores)
         if isinstance(extraction_scores, tuple):
-            extraction_scores = extraction_scores[0]
+            extraction_scores = extraction_scores[
+                0
+            ]  # TODO: should be able to extract on any score, not just first
         if hardness == "hard":
             if self.hard_direction() == "low":
                 extracted = np.argsort(extraction_scores)[:n]
@@ -431,14 +447,15 @@ Missing required arguments for {self.update_point} update. Required arguments ar
             log.info(extracted)
             extracted = sorted(extracted)
             log.info(extracted)
+        print("top_n", self.dataloader_unshuffled.dataset[extracted])
         return (
-            self.dataloader_unshuffled.dataset[extracted],
+            self.dataloader_unshuffled.dataset[extracted],  # pyright: ignore
             extraction_scores[extracted],
         )
 
     def _extract_datapoints_by_index(
         self, indices: List[int]
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[Tuple[torch.Tensor, torch.Tensor, List], np.ndarray]:
         """Internal function to extract datapoints from the plugin model by selecting datapoints by index. Called by extract_datapoints.
 
         Args:
@@ -447,10 +464,17 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         Returns:
             Tuple[np.ndarray, np.ndarray]: A tuple of the extracted datapoints and the scores of the extracted datapoints.
         """
+        if self._scores is None:
+            raise ValueError(
+                "You must fit the plugin before extracting datapoints by index"
+            )
         extraction_scores = deepcopy(self._scores)
         if isinstance(extraction_scores, tuple):
             extraction_scores = extraction_scores[0]
-        return (self.dataloader_unshuffled.dataset[indices], extraction_scores[indices])
+        return (
+            self.dataloader_unshuffled.dataset[indices],  # pyright: ignore
+            extraction_scores[indices],
+        )  # pyright: ignore
 
     def extract_datapoints(
         self,
@@ -461,7 +485,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         n: Optional[int] = None,
         indices: Optional[List[int]] = None,
         sort_by_index: bool = True,  # Only used for top_n
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[Tuple[torch.Tensor, torch.Tensor, List], np.ndarray]:
         """Extracts datapoints from the plugin model by applying a threshold or range to the scores, selecting the top n scores, or selecting datapoints by index.
 
         Args:
@@ -548,7 +572,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
         ...
 
     @property
-    def scores(self) -> np.ndarray:
+    def scores(self) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """The scores for the plugin model
 
         Raises:
@@ -570,7 +594,7 @@ Missing required arguments for {self.update_point} update. Required arguments ar
                 "Plugin has not been fit. `fit()` must be run before getting scores."
             )
 
-    @validate_arguments
+    @validate_call
     def plot_scores(
         self,
         *args: Any,
@@ -660,7 +684,7 @@ class PluginLoader:
     Used to load the plugins from the current folder.
     """
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call
     def __init__(self, plugins: list, expected_type: Type, categories: list) -> None:
         self._plugins: Dict[str, Type] = {}
         self._available_plugins = {}
@@ -673,9 +697,11 @@ class PluginLoader:
         self._expected_type = expected_type
         self._categories = categories
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call
     def _load_single_plugin_impl(self, plugin_name: str) -> Optional[Type]:
         """Helper for loading a single plugin implementation"""
+        cls = None  # This should be overwritten by the plugin below
+
         plugin = Path(plugin_name)
         name = plugin.stem
         ptype = plugin.parent.name
@@ -714,9 +740,13 @@ class PluginLoader:
             log.critical(f"module {name} load failed")
             return None
 
+        if cls is None:
+            log.critical(f"module {name} load failed")
+            return None
+
         return cls
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _load_single_plugin(self, plugin_name: str) -> bool:
         """Helper for loading a single plugin"""
         cls = self._load_single_plugin_impl(plugin_name)
@@ -752,12 +782,7 @@ class PluginLoader:
         self._plugins[name] = cls
         return self
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def load(self, buff: bytes) -> Any:
-        """Load serialized plugin"""
-        return Plugin.load(buff)
-
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def get(self, name: str, *args: Any, **kwargs: Any) -> Any:
         """Create a new object from a plugin.
 
@@ -783,7 +808,7 @@ class PluginLoader:
         # Use deepcopy to avoid sharing state between identical plugins
         return deepcopy(self._plugins[name](*args, **kwargs))
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call
     def get_type(self, name: str) -> Type:
         """
         Get the class type of a plugin.
@@ -818,7 +843,7 @@ class PluginLoader:
         """The number of available plugins."""
         return len(self.list())
 
-    @validate_arguments
+    @validate_call
     def __getitem__(self, key: str) -> Any:
         return self.get(key)
 

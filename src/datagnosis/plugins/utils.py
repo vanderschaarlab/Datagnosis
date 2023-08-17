@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
-from pydantic import validate_arguments
+from pydantic import validate_call
 from torch.utils.data import DataLoader
 
 # datagnosis absolute
@@ -22,7 +22,7 @@ from datagnosis.plugins.core.datahandler import DataHandler
 from datagnosis.utils.constants import DEVICE
 
 
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
+@validate_call(config={"arbitrary_types_allowed": True})
 def apply_augly(image: Image.Image) -> torch.Tensor:
     """
     The function applies a set of image augmentations using the AugLy library and returns the augmented
@@ -48,7 +48,7 @@ def apply_augly(image: Image.Image) -> torch.Tensor:
     return aug_tensor_image
 
 
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
+@validate_call(config={"arbitrary_types_allowed": True})
 def kl_divergence(
     p: Union[np.ndarray, torch.Tensor], q: Union[np.ndarray, torch.Tensor]
 ) -> Union[np.ndarray, torch.Tensor]:
@@ -104,7 +104,7 @@ def get_intermediate_outputs(
     return logits, targets, probs, indices
 
 
-@validate_arguments
+@validate_call
 def get_json_serializable_args(args: Dict) -> Dict:
     """
     This function should take the args for a plugin and makes them serializable with json.
@@ -125,7 +125,7 @@ def get_json_serializable_args(args: Dict) -> Dict:
     return serializable_args
 
 
-@validate_arguments
+@validate_call
 def get_all_args_hash(all_args: dict) -> str:
     """
     This function takes all the args for a plugin and returns a hash of them. It is used in the
@@ -154,7 +154,7 @@ def get_all_args_hash(all_args: dict) -> str:
     return all_args_hash
 
 
-@validate_arguments
+@validate_call
 def load_update_values_from_cache(path: Union[str, Path]) -> Any:
     """
     This function loads the update values from the cache.
@@ -171,7 +171,7 @@ def load_update_values_from_cache(path: Union[str, Path]) -> Any:
         return cloudpickle.load(f)
 
 
-@validate_arguments
+@validate_call
 def cache_update_values(update_values: List[Any], path: Union[str, Path]) -> Any:
     """
     This function caches the update values required for the plugin _update() call.

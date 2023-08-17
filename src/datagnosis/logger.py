@@ -33,7 +33,7 @@ def add(
     sink = DEFAULT_SINK if sink is None else sink
     try:
         logger.add(
-            sink=sink,
+            sink=sink,  # pyright: ignore
             format=LOG_FORMAT,
             enqueue=True,
             colorize=False,

@@ -5,7 +5,7 @@ from time import time
 # third party
 import click
 import nbformat
-from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors import ExecutePreprocessor  # pyright: ignore
 
 workspace = Path(__file__).parents[0] / "test_workspace"
 workspace.mkdir(parents=True, exist_ok=True)

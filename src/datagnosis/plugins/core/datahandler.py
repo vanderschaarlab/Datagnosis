@@ -7,7 +7,7 @@ from typing import Any, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call
 from torch.utils.data import DataLoader, TensorDataset
 
 # datagnosis absolute
@@ -25,7 +25,7 @@ class IndexedDataset(TensorDataset):
 
 
 class DataHandler(metaclass=ABCMeta):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         X: Union[pd.DataFrame, np.ndarray, torch.Tensor],

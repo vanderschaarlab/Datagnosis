@@ -1,11 +1,11 @@
 # stdlib
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 # third party
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 # datagnosis absolute
 import datagnosis.logger as log
@@ -14,7 +14,7 @@ from datagnosis.utils.constants import DEVICE
 
 
 class PrototypicalityPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -100,7 +100,7 @@ class PrototypicalityPlugin(Plugin):
 distance of the sample to the class centroid as the metric to characterize data.
 """
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self,
         net: torch.nn.Module,
@@ -164,8 +164,10 @@ distance of the sample to the class centroid as the metric to characterize data.
                     )
                 self.cosine_scores.append(cosine_similarity.detach().cpu().item())
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def compute_scores(self, recompute: bool = False) -> np.ndarray:
+    @validate_call(config={"arbitrary_types_allowed": True})
+    def compute_scores(
+        self, recompute: bool = False
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         A method to compute the prototypicality scores for the plugin.
 

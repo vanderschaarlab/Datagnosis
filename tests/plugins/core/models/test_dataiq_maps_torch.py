@@ -9,7 +9,7 @@ from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
 
 def test_dataiq_maps_torch_iris() -> None:
     X, y = load_iris(return_X_y=True, as_frame=True)
-    data_handler = DataHandler(X, y, batch_size=32)
+    data_handler = DataHandler(X, y, batch_size=32)  # pyright: ignore
     dataloader = data_handler.dataloader
     test_dataiq_maps_torch = DataIQ_MAPS_Torch(
         dataloader=dataloader, sparse_labels=True
@@ -29,7 +29,7 @@ def test_dataiq_maps_torch_iris() -> None:
 
 def test_dataiq_maps_torch_breast_cancer() -> None:
     X, y = load_breast_cancer(return_X_y=True, as_frame=True)
-    data_handler = DataHandler(X, y)
+    data_handler = DataHandler(X, y)  # pyright: ignore
     dataloader = data_handler.dataloader
     test_dataiq_maps_torch = DataIQ_MAPS_Torch(
         dataloader=dataloader, sparse_labels=True
@@ -49,7 +49,7 @@ def test_dataiq_maps_torch_breast_cancer() -> None:
 
 def test_dataiq_maps_torch_breast_cancer_batched() -> None:
     X, y = load_breast_cancer(return_X_y=True, as_frame=True)
-    data_handler = DataHandler(X, y, batch_size=32)
+    data_handler = DataHandler(X, y, batch_size=32)  # pyright: ignore
     dataloader = data_handler.dataloader
     test_dataiq_maps_torch = DataIQ_MAPS_Torch(
         dataloader=dataloader, sparse_labels=True
@@ -69,7 +69,7 @@ def test_dataiq_maps_torch_breast_cancer_batched() -> None:
 
 def test_dataiq_maps_torch_wine() -> None:
     X, y = load_wine(return_X_y=True, as_frame=True)
-    data_handler = DataHandler(X, y, batch_size=32)
+    data_handler = DataHandler(X, y, batch_size=32)  # pyright: ignore
     dataloader = data_handler.dataloader
     test_dataiq_maps_torch = DataIQ_MAPS_Torch(
         dataloader=dataloader, sparse_labels=True

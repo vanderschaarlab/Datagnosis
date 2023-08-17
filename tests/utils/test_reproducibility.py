@@ -13,7 +13,7 @@ from datagnosis.plugins.core.models.simple_mlp import SimpleMLP
 def test_scores_reproducible() -> None:
     # Prep data
     X, y = load_iris(return_X_y=True, as_frame=True)
-    datahander = DataHandler(X, y, batch_size=32, reproducible=True)
+    datahander = DataHandler(X, y, batch_size=32, reproducible=True)  # pyright: ignore
 
     # creating our model
     model = SimpleMLP()

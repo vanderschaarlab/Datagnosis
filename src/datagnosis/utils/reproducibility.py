@@ -5,10 +5,10 @@ import random
 # third party
 import numpy as np
 import torch
-from pydantic import validate_arguments
+from pydantic import validate_call  # pyright: ignore
 
 
-@validate_arguments
+@validate_call
 def enable_reproducible_results(seed: int) -> None:
     """
     This function sets the random seed for various libraries in Python to ensure reproducibility of
@@ -23,8 +23,8 @@ def enable_reproducible_results(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False  # pyright: ignore
+    torch.backends.cudnn.deterministic = True  # pyright: ignore
 
 
 def clear_cache() -> None:

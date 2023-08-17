@@ -133,4 +133,5 @@ def test_plugin_scores(test_plugin: Plugin) -> None:
     )
     scores = test_plugin.scores
     assert len(scores) == len(y)
+    assert isinstance(scores, np.ndarray)
     assert scores.dtype in [np.float32, np.float64]

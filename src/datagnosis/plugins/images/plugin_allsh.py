@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from pydantic import validate_arguments
+from pydantic import validate_call  # pyright: ignore
 from torchvision.transforms import ToPILImage
 
 # datagnosis absolute
@@ -16,7 +16,7 @@ from datagnosis.plugins.utils import apply_augly, kl_divergence
 
 
 class AllSHPlugin(Plugin):
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def __init__(
         self,
         # generic plugin args
@@ -100,7 +100,7 @@ class AllSHPlugin(Plugin):
         """
         return """The KL divergence between the softmaxes of the original and augmented images."""
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def _updates(
         self, net: nn.Module, device: Union[str, torch.device] = DEVICE
     ) -> None:
@@ -142,9 +142,14 @@ class AllSHPlugin(Plugin):
 
                 # Compute the KL divergence between the softmaxes and store it in the list
                 kl_div = kl_divergence(softmax_original, softmax_augmented)
-                self.kl_divergences.extend(kl_div.cpu().numpy().tolist())
+                kl_div = (
+                    kl_div.detach().cpu().numpy()
+                    if isinstance(kl_div, torch.Tensor)
+                    else kl_div
+                )
+                self.kl_divergences.extend(kl_div.tolist())
 
-    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config={"arbitrary_types_allowed": True})
     def compute_scores(self) -> np.ndarray:
         """
         A method that computes the scores for the plugin. It returns the plugin's kl_divergences attribute,

@@ -4,8 +4,9 @@
 # Required
 version: 2
 
+# Set the version of Python and other tools you might need
 build:
-  os: "ubuntu-20.04"
+  os: ubuntu-22.04
   tools:
     python: "3.8"
 
@@ -14,12 +15,12 @@ sphinx:
   configuration: docs/source/conf.py
 
 # Optionally build your docs in additional formats such as PDF
-# formats:
-#   - pdf
+formats:
+  - pdf
 
 python:
-  version: 3.8
   install:
+    - requirements: docs/requirements.txt
     - method: pip
       path: .
       extra_requirements:

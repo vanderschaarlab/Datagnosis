@@ -9,20 +9,27 @@
 
 <div align="center">
 
-<!-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Vr2PJswgfFYBkJCm3hhVkuH-9dXnHeYV?usp=sharing)
-[![Tests Quick Python](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_pr.yml/badge.svg)](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_pr.yml)
-[![Tests Full Python](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_full.yml/badge.svg)](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_full.yml)
-[![Tutorials](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_tutorials.yml)
-[![Documentation Status](https://readthedocs.org/projects/datagnosis/badge/?version=latest)](https://datagnosis.readthedocs.io/en/latest/?badge=latest)
-
-[![](https://pepy.tech/badge/datagnosis)](https://pypi.org/project/datagnosis/) -->
-
-<!-- [![arXiv](https://img.shields.io/badge/arXiv-2301.07573-b31b1b.svg)](https://arxiv.org/abs/2301.07573) -->
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/vanderschaarlab/datagnosis/blob/main/LICENSE)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
-[![about](https://img.shields.io/badge/about-The%20van%20der%20Schaar%20Lab-blue)](https://www.vanderschaar-lab.com/)
-
-<!-- ![image](https://github.com/vanderschaarlab/datagnosis/raw/main/docs/arch.png "datagnosis") -->
+<a href="https://colab.research.google.com/drive/1PPcjl9jq6E4j3Qz0cZIQbbQTaeK2qH6b">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg">
+</a>
+<a href="https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_pr.yml">
+  <img src="https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_pr.yml/badge.svg">
+</a>
+<a href="https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_tutorials.yml">
+  <img src="https://github.com/vanderschaarlab/datagnosis/actions/workflows/test_tutorials.yml/badge.svg">
+</a>
+<a href="https://datagnosis.readthedocs.io/en/latest/?badge=latest">
+  <img src="https://readthedocs.org/projects/datagnosis/badge/?version=latest">
+</a>
+<a href="https://github.com/vanderschaarlab/datagnosis/blob/main/LICENSE">
+  <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
+</a>
+<a href="https://www.python.org/downloads/release/python-380/">
+  <img src="https://img.shields.io/badge/python-3.8+-blue.svg">
+</a>
+<a href="https://www.vanderschaar-lab.com/">
+  <img src="https://img.shields.io/badge/about-The%20van%20der%20Schaar%20Lab-blue">
+</a>
 
 </div>
 
@@ -30,8 +37,8 @@
 ## Features:
 - 🔑 Easy to extend pluginable architecture.
 - 🌀 Several state-of-the-art hardness characterisation methods.
-<!-- - 📚 [Read the docs !](https://datagnosis.readthedocs.io/) -->
-<!-- - ✈️ [Checkout the tutorials!](https://github.com/vanderschaarlab/datagnosis#-tutorials) -->
+- 📚 [Read the docs !](https://datagnosis.readthedocs.io/)
+- ✈️ [Checkout the tutorials!](https://github.com/vanderschaarlab/datagnosis#-tutorials)
 
 *Please note: datagnosis does not handle missing data and so these values must be imputed first [HyperImpute](https://github.com/vanderschaarlab/hyperimpute) can be used to do this.*
 
@@ -112,7 +119,7 @@ For benchmarking of the below methods see https://github.com/seedatnabeel/D-CAT.
 | Large Loss | Generic |Large Loss characterizes data based on sample-level loss magnitudes. | Hard - high scores | [Large Loss Paper](https://arxiv.org/abs/2106.00445)|
 | Prototypicalilty | Generic |Prototypicality calculates the latent space clustering distance of the sample to the class centroid as the metric to characterize data. | Hard - high scores |[Prototypicalilty Paper](https://arxiv.org/abs/2206.14486) |
 | Variance of Gradients (VOG) | Generic |VoG (Variance of gradients) estimates the variance of gradients for each sample over training | Hard - high scores |[VOG Paper](https://arxiv.org/abs/2008.11600) |
-| Active Learning Guided by Local Sensitivity and Hardness (ALLSH) | Images |ALLSH computes the KL divergence of softmax outputs between original and augmented samples to characterize data. | Hard - high scores||[ALLSH Paper](https://arxiv.org/abs/2205.04980) |
+| Active Learning Guided by Local Sensitivity and Hardness (ALLSH) | Images |ALLSH computes the KL divergence of softmax outputs between original and augmented samples to characterize data. | Hard - high scores| [ALLSH Paper](https://arxiv.org/abs/2205.04980) |
 
 *Generic type plugins can be used for tabular or image data. Image type plugins only work for images.*
 

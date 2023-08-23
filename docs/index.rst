@@ -6,11 +6,7 @@
 Datagnosis documentation!
 ======================================
 
-.. mdinclude:: README.md
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. mdinclude:: ../README.md
 
 Examples
 ==========
@@ -35,10 +31,3 @@ Generators
     :maxdepth: 3
 
     generators.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

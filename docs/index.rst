@@ -35,10 +35,3 @@ Generators
     :maxdepth: 3
 
     generators.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

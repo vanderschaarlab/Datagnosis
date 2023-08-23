@@ -110,7 +110,7 @@ For benchmarking of the below methods see https://github.com/seedatnabeel/D-CAT.
 | --- | --- | --- | --- | --- |
 | Area Under the Margin (AUM) | Generic | Characterizes data examples based on the margin of a classifier – i.e. the difference between the logit values of the correct class and the next class. | Hard - low scores. | [AUM Paper](https://arxiv.org/abs/2001.10528) |
 | Confident Learning | Generic |Confident learning estimates the joint distribution of noisy and true labels — characterizing data as easy and hard for mislabeling. | Hard - low scores | [Confident Learning Paper](https://arxiv.org/pdf/1911.00068.pdf) |
-| Conf Agree | Generic | Agreement measures the agreement of predictions on the same example. | Hard - low scores | [ Conf Agree Paper](https://arxiv.org/pdf/1910.13427.pdf)|
+| Conf Agree | Generic | Agreement measures the agreement of predictions on the same example. | Hard - low scores | [Conf Agree Paper](https://arxiv.org/pdf/1910.13427.pdf)|
 | Data IQ |Generic | Data-IQ computes the aleatoric uncertainty and confidence to characterize the data into easy, ambiguous and hard examples. | Hard - low confidence scores. High Aleatoric Uncertainty scores define ambiguous | [Data-IQ Paper](https://arxiv.org/abs/2210.13043) |
 | Data Maps | Generic |Data Maps focuses on measuring variability (epistemic uncertainty) and confidence to characterize the data into easy, ambiguous and hard examples.|Hard - low confidence scores. High Epistemic Uncertainty scores define ambiguous| [Data-Maps Paper](https://arxiv.org/abs/2009.10795)|
 | Gradient Normed (GraNd) | Generic |GraNd measures the gradient norm to characterize data. | Hard - high scores | [GraNd Paper](https://arxiv.org/abs/2107.07075)|

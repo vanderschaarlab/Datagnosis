@@ -129,9 +129,24 @@ def test_plugin_scores(test_plugin: Plugin) -> None:
         datahandler=datahander,
         use_caches_if_exist=False,
         workspace="test_workspace",
-        epochs=2,
     )
     scores = test_plugin.scores
     assert len(scores) == len(y)
     assert isinstance(scores, np.ndarray)
     assert scores.dtype in [np.float32, np.float64]
+
+
+@pytest.mark.parametrize(
+    "test_plugin", generate_fixtures(plugin_name, plugin, plugin_args_mnist_lenet)
+)
+def test_plugin_plots(test_plugin: Plugin) -> None:
+    X, y, _, _ = load_mnist()
+    X = X[:100]
+    y = y[:100]
+    datahander = DataHandler(X, y, batch_size=32)  # pyright: ignore
+    test_plugin.fit(
+        datahandler=datahander,
+        use_caches_if_exist=False,
+        workspace="test_workspace",
+    )
+    test_plugin.plot_scores(show=False)

@@ -74,3 +74,17 @@ def test_plugin_scores(test_plugin: Plugin) -> None:
     assert isinstance(scores, np.ndarray)
     assert scores.dtype in [np.float32, np.float64]
     assert all([0.0 <= score <= 1.0 for score in scores])
+
+
+@pytest.mark.parametrize(
+    "test_plugin", generate_fixtures(plugin_name, plugin, plugin_args)
+)
+def test_plugin_plots(test_plugin: Plugin) -> None:
+    X, y = load_iris(return_X_y=True, as_frame=True)
+    datahander = DataHandler(X, y, batch_size=32)  # pyright: ignore
+    test_plugin.fit(
+        datahandler=datahander,
+        use_caches_if_exist=False,
+        workspace="test_workspace",
+    )
+    test_plugin.plot_scores(show=False)

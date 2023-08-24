@@ -25,6 +25,20 @@ from datagnosis.plugins.core.datahandler import DataHandler
 from datagnosis.utils.constants import DEVICE
 from datagnosis.utils.reproducibility import clear_cache, enable_reproducible_results
 
+# The complete list of parameters that can be passed to the _updates method of any of the plugins.
+UPDATE_PARAMS: Dict[str, Any] = {
+    "y_pred": None,
+    "y_batch": None,
+    "sample_ids": None,
+    "net": None,
+    "device": None,
+    "logits": None,
+    "targets": None,
+    "probs": None,
+    "indices": None,
+    "data_uncert_class": None,
+}
+
 
 # Base class for Hardness Classification Methods (HCMs)
 class Plugin(metaclass=ABCMeta):
@@ -89,6 +103,8 @@ class Plugin(metaclass=ABCMeta):
             log.debug("Fixing seed for reproducibility.")
             enable_reproducible_results(0)
         log.debug(f"Initialized parent plugin for {self.name()}")
+        # Update UPDATE_PARAMS
+        UPDATE_PARAMS["device"] = self.device
 
     @staticmethod
     @abstractmethod
@@ -194,11 +210,15 @@ class Plugin(metaclass=ABCMeta):
                         indices,
                         batch_idx,
                     ) = utils.load_update_values_from_cache(update_values_cache_file)
+
                     if self.update_point == "mid-epoch":
                         log.debug("Updating scores mid-epoch")
-                        self._safe_update(
-                            y_pred=outputs, y_batch=true_label, sample_ids=indices
-                        )
+                        # Update UPDATE_PARAMS before calling _safe_update() for mid-epoch
+                        UPDATE_PARAMS["y_pred"] = outputs
+                        UPDATE_PARAMS["y_batch"] = true_label
+                        UPDATE_PARAMS["sample_ids"] = indices
+                        UPDATE_PARAMS["net"] = self.model
+                        self._safe_update(**UPDATE_PARAMS)
                 else:
                     if (
                         use_caches_if_exist
@@ -220,9 +240,12 @@ class Plugin(metaclass=ABCMeta):
 
                     if self.update_point == "mid-epoch":
                         log.debug("Updating scores mid-epoch")
-                        self._safe_update(
-                            y_pred=outputs, y_batch=true_label, sample_ids=indices
-                        )
+                        # Update UPDATE_PARAMS before calling _safe_update() for mid-epoch
+                        UPDATE_PARAMS["y_pred"] = outputs
+                        UPDATE_PARAMS["y_batch"] = true_label
+                        UPDATE_PARAMS["sample_ids"] = indices
+                        UPDATE_PARAMS["net"] = self.model
+                        self._safe_update(**UPDATE_PARAMS)
                     loss = self.criterion(outputs, true_label)
                     loss.backward()
                     self.optimizer.step()
@@ -286,25 +309,23 @@ class Plugin(metaclass=ABCMeta):
 
             if self.update_point == "per-epoch":
                 log.debug(f"Updating plugin after epoch {epoch+1}")
-                self._safe_update(
-                    net=self.model,
-                    device=self.device,
-                    logits=logits,
-                    targets=targets,
-                    probs=probs,
-                    indices=indices,
-                )
+                # Update UPDATE_PARAMS before calling _safe_update() for per-epoch
+                UPDATE_PARAMS["net"] = self.model
+                UPDATE_PARAMS["logits"] = logits
+                UPDATE_PARAMS["targets"] = targets
+                UPDATE_PARAMS["probs"] = probs
+                UPDATE_PARAMS["indices"] = indices
+                self._safe_update(**UPDATE_PARAMS)
 
         if self.update_point == "post-epoch":
             log.debug("Updating plugin after training")
-            self._safe_update(
-                net=self.model,
-                data_uncert_class=self.data_uncert_class,
-                device=self.device,
-                logits=logits,
-                targets=targets,
-                probs=probs,
-            )
+            # Update UPDATE_PARAMS before calling _safe_update() for per-epoch
+            UPDATE_PARAMS["net"] = self.model
+            UPDATE_PARAMS["logits"] = logits
+            UPDATE_PARAMS["targets"] = targets
+            UPDATE_PARAMS["probs"] = probs
+            UPDATE_PARAMS["data_uncert_class"] = self.data_uncert_class
+            self._safe_update(**UPDATE_PARAMS)
         self.has_been_fit = True
         self.compute_scores()
         log.debug("Plugin fit complete and scores computed.")
@@ -447,7 +468,6 @@ Missing required arguments for {self.update_point} update. Required arguments ar
             log.info(extracted)
             extracted = sorted(extracted)
             log.info(extracted)
-        print("top_n", self.dataloader_unshuffled.dataset[extracted])
         return (
             self.dataloader_unshuffled.dataset[extracted],  # pyright: ignore
             extraction_scores[extracted],

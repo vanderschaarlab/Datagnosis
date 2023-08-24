@@ -1,4 +1,5 @@
 # stdlib
+import os
 from typing import List
 
 # third party
@@ -20,6 +21,8 @@ from datagnosis.plugins.core.models.image_nets import (
 from datagnosis.plugins.images.plugin_allsh import plugin
 from datagnosis.utils.datasets.images.cifar import load_cifar
 from datagnosis.utils.datasets.images.mnist import load_mnist
+
+IN_GITHUB_ACTIONS: bool = os.getenv("GITHUB_ACTIONS") == "true"
 
 plugin_name = "allsh"
 plugin_args_mnist_lenet = {
@@ -136,6 +139,10 @@ def test_plugin_scores(test_plugin: Plugin) -> None:
     assert scores.dtype in [np.float32, np.float64]
 
 
+@pytest.mark.skipif(
+    IN_GITHUB_ACTIONS,
+    reason="CIFAR-10 is too large to be reliably downloaded in GitHub Actions",
+)
 @pytest.mark.parametrize(
     "test_plugin", generate_fixtures(plugin_name, plugin, plugin_args_mnist_lenet)
 )

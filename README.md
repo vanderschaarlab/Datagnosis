@@ -38,7 +38,7 @@
 - 🔑 Easy to extend pluginable architecture.
 - 🌀 Several state-of-the-art hardness characterisation methods.
 - 📚 [Read the docs !](https://datagnosis.readthedocs.io/)
-- ✈️ [Checkout the tutorials!](https://github.com/vanderschaarlab/datagnosis#-tutorials)
+- ✈️ [Checkout the tutorials!](https://colab.research.google.com/drive/1PPcjl9jq6E4j3Qz0cZIQbbQTaeK2qH6b)
 
 *Please note: datagnosis does not handle missing data and so these values must be imputed first [HyperImpute](https://github.com/vanderschaarlab/hyperimpute) can be used to do this.*
 

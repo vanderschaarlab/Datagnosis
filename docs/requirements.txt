@@ -2,6 +2,7 @@ autodoc
 datagnosis
 furo
 jupyter
+libmagic
 m2r2==0.3.1
 matplotlib
 mistune<2.0.0

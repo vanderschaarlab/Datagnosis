@@ -16,8 +16,8 @@ copyright = "2023, vanderschaar-lab"
 author = "vanderschaar-lab"
 release = __version__
 
-subprocess.run(["pip uninstall -y python-magic"])
-subprocess.run(["pip install python-magic-bin==0.4.14"])
+subprocess.run(["python -m pip uninstall -y python-magic"])
+subprocess.run(["python -m pip install python-magic-bin==0.4.14"])
 
 subprocess.run(
     [

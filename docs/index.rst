@@ -24,10 +24,10 @@ DataHandlers
 
     datahandlers.rst
 
-Generators
+Hardness Characterization Methods
 ==========
 .. toctree::
     :glob:
     :maxdepth: 3
 
-    generators.rst
+    methods.rst

@@ -1,4 +1,4 @@
-Generators
+Hardness Characterization Methods
 ============
 
 General purpose
@@ -23,6 +23,6 @@ Image specific
 -----------------
 .. toctree::
     :glob:
-    :maxdepth: 2
+    :maxdepth: 3
 
     Active Learning Guided by Local Sensitivity and Hardness (ALLSH) <generated/datagnosis.plugins.images.plugin_allsh.rst>

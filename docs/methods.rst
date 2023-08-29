@@ -1,5 +1,5 @@
 Hardness Characterization Methods
-============
+=================================
 
 General purpose
 -----------------

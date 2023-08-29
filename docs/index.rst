@@ -25,7 +25,7 @@ DataHandlers
     datahandlers.rst
 
 Hardness Characterization Methods
-==========
+==================================
 .. toctree::
     :glob:
     :maxdepth: 3

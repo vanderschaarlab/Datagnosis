@@ -25,7 +25,7 @@ subprocess.run(
         "--ext-mathjax",
         "--ext-viewcode",
         "-e",  # put documentation for each module on its own page
-        # "-T", # don't create a table of contents file
+        "-T",  # don't create a table of contents file
         "-M",  # put module documentation before submodule documentation
         "-F",  # generate a full project with sphinx-quickstart
         "-P",  # include "_private" modules

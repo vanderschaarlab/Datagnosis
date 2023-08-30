@@ -2,7 +2,6 @@ autodoc
 datagnosis
 furo
 jupyter
-# libmagic ; sys_platform == "darwin"
 m2r2==0.3.1
 matplotlib
 mistune<2.0.0
@@ -14,8 +13,7 @@ numpy
 pandas
 pandoc==2.3
 Pillow==9.3.0
-# python-magic>=0.4.27 ; "linux" in sys_platform
-python-magic-bin ; sys_platform == "win32"
+python-magic>=0.4.27
 sphinx==4.3.1
 sphinx-autopackagesummary
 sphinx-pyreverse

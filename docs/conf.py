@@ -16,9 +16,6 @@ copyright = "2023, vanderschaar-lab"
 author = "vanderschaar-lab"
 release = __version__
 
-subprocess.run(["apt-get update && apt-get install sudo"])
-subprocess.run(["sudo apt-get install libmagic"])
-
 subprocess.run(
     [
         "sphinx-apidoc",

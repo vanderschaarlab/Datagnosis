@@ -9,10 +9,8 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.8"
-  # jobs:
-  #   pre_create_environment:
-  #     - apt-get update && apt-get install sudo
-  #     - sudo apt-get install libmagic
+  apt-packages:
+    - libmagic-dev
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:

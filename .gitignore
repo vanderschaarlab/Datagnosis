@@ -56,10 +56,11 @@ MANIFEST
 .python-version
 
 # datagnosis specific
-/workspace
-/test_workspace
-tests/test_workspace
-/Tutorials/workspace
+/workspace/
+/test_workspace/
+tests/test_workspace/
+/Tutorials/workspace/
+/docs/Tutorials/workspace
 /Tutorials/data
 src/datagnosis/plugins/archived/
 /data/*

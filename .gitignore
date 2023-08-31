@@ -66,5 +66,6 @@ src/datagnosis/plugins/archived/
 /data/*
 !data/Brazil_covid19/
 docs/generated/*
+docs/Tutorials/workspace/
 # Temp
 .coveragerc

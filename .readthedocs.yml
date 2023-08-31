@@ -11,8 +11,8 @@ build:
     python: "3.8"
   jobs:
     pre_create_environment:
-      - apt update && apt install sudo
-      - sudo apt install libmagic
+      - apt-get update && apt-get install sudo
+      - sudo apt-get install libmagic
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:

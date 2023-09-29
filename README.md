@@ -21,6 +21,9 @@
 <a href="https://datagnosis.readthedocs.io/en/latest/?badge=latest">
   <img src="https://readthedocs.org/projects/datagnosis/badge/?version=latest">
 </a>
+<a href="https://badge.fury.io/py/datagnosis">
+<img src="https://badge.fury.io/py/datagnosis.svg" alt="PyPI version" height="18">
+</a>
 <a href="https://github.com/vanderschaarlab/datagnosis/blob/main/LICENSE">
   <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
 </a>
